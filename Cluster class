@@ -1,4 +1,5 @@
 from ROOT import TRandom3
+import math as m
 
 class ClusterSimulator:
     def __init__(self):
