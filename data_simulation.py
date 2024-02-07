@@ -71,7 +71,3 @@ class ClusterSimulator:
             else:
                 clusd[i] = clus1[i]
         return clusd
-
-if __name__ == "__main__":
-    simulator = ClusterSimulator()
-    print(simulator.generate_MIP_cluster())
