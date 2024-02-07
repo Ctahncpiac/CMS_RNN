@@ -1,8 +1,9 @@
+import time
 from ROOT import TRandom3
 import math as m
 import numpy as np
 
-rand = TRandom3()
+rand = TRandom3(int(time.time()))
 class ClusterSimulator:
     def __init__(self):
         pass
@@ -71,4 +72,3 @@ class ClusterSimulator:
             else:
                 clusd[i] = clus1[i]
         return clusd
-
