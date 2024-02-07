@@ -2,25 +2,28 @@ from ROOT import TRandom3
 import math as m
 import numpy as np
 
-rand = TRandom3()
 class ClusterSimulator:
     def __init__(self):
         pass
 
     # Generate a position between 0 and 1 within a strip
     def generate_position(self):
+        rand = TRandom3()
         return rand.Uniform(1)
     
     # Generate the mean charge (mean of Landau)    
     def generate_mean_charge(self, mu, sig):
+        rand = TRandom3()
         return rand.Gaus(mu, sig)
     
     # Generate the total charge    
     def generate_charge(self, mu, sig):
+        rand = TRandom3()
         return rand.Landau(mu, sig)
     
     # Angular distribution for theta in x^2 + 1 between -pi/2 and pi/2
-    def distr_theta(self): 
+    def distr_theta(self):
+        rand = TRandom3()
         theta=m.pi/2
         y=2
         while y>m.pow(np.cos(theta),2) + 1 :
@@ -29,6 +32,7 @@ class ClusterSimulator:
         return theta
 
     def generate_MIP_cluster(self, q=100, sigG=10, sigL=20, xt0=0.8, xt1=0.1, noise=8):
+        rand = TRandom3()
         pos = self.generate_position()
         Q = self.generate_charge(self.generate_mean_charge(q, sigG), sigL)
         
@@ -61,6 +65,7 @@ class ClusterSimulator:
         return clus
 
     def generate_2MIP_cluster(self, delta_pos=3, q=100, sigG=10, sigL=20, xt0=0.8, xt1=0.1, noise=8):
+        rand = TRandom3()
         clus1 = self.generate_MIP_cluster(q, sigG, sigL, xt0, xt1, noise)
         clus2 = self.generate_MIP_cluster(q, sigG, sigL, xt0, xt1, noise)
         dp = round(rand.Uniform(1, delta_pos))
