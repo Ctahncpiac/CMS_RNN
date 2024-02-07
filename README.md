@@ -1,6 +1,12 @@
 # CMS_RNN
 Recurrent Neural Network for CMS
 
+##################################
+###        DEPENDENCIES        ###
+##################################
+
+> python
+> ROOT
 
 ##################################
 ###        ARCHITECTURE        ###
