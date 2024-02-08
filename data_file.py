@@ -15,9 +15,9 @@ xbkg = array('f',[0]*clusSize)
 tbkg.Branch("clus", xbkg, "xbkg[10]/F")
 tsgn.Branch("clus", xsng, "xsng[10]/F")    
 
+simulator=ClusterSimulator()
 ngen = 10000
 for i in range(ngen):
-    simulator=ClusterSimulator()
     onemip = simulator.generate_MIP_cluster()
     for i in range(len(onemip)):
         xsng[i] = onemip[i]
