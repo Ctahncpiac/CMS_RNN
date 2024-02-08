@@ -21,6 +21,6 @@ Recurrent Neural Network for CMS
                 |
                 |_RNN.py ___{ TMVA methods & Keras }
                     |
-                    |_results.py
+                    |_results.py  #mostly graphics#
 
   
