@@ -1,3 +1,4 @@
+from array import array
 from ROOT import TFile, TTree
 from data_simulation import ClusterSimulator
 
@@ -16,10 +17,11 @@ tsgn.Branch("clus", xsng, "xsng[10]/F")
 
 ngen = 10000
 for i in range(ngen):
-    onemip = GMIPCluster()
+    simulator=ClusterSimulator()
+    onemip = simulator.generate_MIP_cluster()
     for i in range(len(onemip)):
         xsng[i] = onemip[i]
-    twomip = G2MIPCluster()
+    twomip = simulator.generate_2MIP_cluster()
     for i in range(len(onemip)):
         xbkg[i] = twomip[i]
     tsgn.Fill()
