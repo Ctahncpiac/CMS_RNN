@@ -2,8 +2,9 @@ import tensorflow as tf
 import keras
 from keras.models import Sequential
 from keras.layers.core import Dens
-from ROOT import TMVA
 import ROOT
+from ROOT import TMVA
+
 
 
 #Classification
