@@ -19,7 +19,7 @@ class file:
         #    tsgn.Branch("clus_" + str(i), xsng[i], "clus_" + str(i) + "/F")
         tbkg.Branch("clus", xbkg, "xbkg[10]/F")
         tsgn.Branch("clus", xsng, "xsng[10]/F")    
-        simulator=ClusterSimulator()
+        simulator=ClusterSimulator("config.variables_1")
         for i in range(ngen):
             onemip = simulator.generate_MIP_cluster()
             for i in range(len(onemip)):
