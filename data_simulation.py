@@ -12,7 +12,7 @@ rand = TRandom3(int(time.time()))
 class ClusterSimulator:
     def __init__(self, config_file):
         with open(config_file) as f:
-            config = json.load(f)
+            config = variables_1.load(f)
         self.q = config["q"]
         self.sigG = config["sigG"]
         self.sigL = config["sigL"]
