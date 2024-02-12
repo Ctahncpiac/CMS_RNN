@@ -84,3 +84,9 @@ class ClusterSimulator:
             else:
                 clusd[i] = clus1[i]
         return clusd
+
+
+# Example of using the ClusterSimulator class
+if __name__ == "__main__":
+    simulator = ClusterSimulator("config.json")
+    print(simulator.q) # Example of access to a configured variable
