@@ -6,7 +6,7 @@ ngen = 1000
 c2 = TCanvas()
 h = TH1F('h','',10,0,10)
 for i in range(ngen):
-    simulator=ClusterSimulator()
+    simulator=ClusterSimulator("config.variables_1")
     clus = simulator.generate_MIP_cluster()
     for i in range(10):
         h.SetBinContent(i,clus[i])
