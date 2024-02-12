@@ -2,23 +2,27 @@ import time
 from ROOT import TRandom3
 import math as m
 import numpy as np
-import variables_1
+import json
 
-#class ClusterSimulator:
+
    # def __init__(self):
        # pass
 
 rand = TRandom3(int(time.time()))
 class ClusterSimulator:
-    def __init__(self, config_file):
+   def __init__(self, config_file):
+        self.config_file = config_file
+        self.load_config(config_file)
+      
+   def load_config(self, config_file):
         with open(config_file) as f:
-            config = variables_1.load(f)
+            config = json.load(f)
         self.q = config["q"]
         self.sigG = config["sigG"]
         self.sigL = config["sigL"]
         self.xt0 = config["xt0"]
         self.xt1 = config["xt1"]
-        self.noise = config["noise"]
+        self.noise = config["noise"]  
 
     # Generate a position between 0 and 1 within a strip
     def generate_position(self):
@@ -41,7 +45,7 @@ class ClusterSimulator:
             y = rand.uniform(0,1)
         return theta
 
-   def generate_MIP_cluster(self):
+  def generate_MIP_cluster(self):
         pos = self.generate_position()
         Q = self.generate_charge(self.generate_mean_charge(self.q, self.sigG), self.sigL)
         
@@ -85,8 +89,16 @@ class ClusterSimulator:
                 clusd[i] = clus1[i]
         return clusd
 
+      def set_config_file(self, config_file):
+        self.config_file = config_file
+        self.load_config(config_file)
+
 
 # Example of using the ClusterSimulator class
 if __name__ == "__main__":
-    simulator = ClusterSimulator("config.json")
+    simulator = ClusterSimulator("config1.json")
     print(simulator.q) # Example of access to a configured variable
+
+   # Load a new configuration file and compare results
+    simulator.set_config_file("config2.json")
+    print(simulator.q)  # New value for variable q
