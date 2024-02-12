@@ -2,11 +2,23 @@ import time
 from ROOT import TRandom3
 import math as m
 import numpy as np
+import variables_1
+
+#class ClusterSimulator:
+   # def __init__(self):
+       # pass
 
 rand = TRandom3(int(time.time()))
 class ClusterSimulator:
-    def __init__(self):
-        pass
+    def __init__(self, config_file):
+        with open(config_file) as f:
+            config = json.load(f)
+        self.q = config["q"]
+        self.sigG = config["sigG"]
+        self.sigL = config["sigL"]
+        self.xt0 = config["xt0"]
+        self.xt1 = config["xt1"]
+        self.noise = config["noise"]
 
     # Generate a position between 0 and 1 within a strip
     def generate_position(self):
@@ -29,9 +41,9 @@ class ClusterSimulator:
             y = rand.uniform(0,1)
         return theta
 
-    def generate_MIP_cluster(self, q=100, sigG=10, sigL=20, xt0=0.8, xt1=0.1, noise=8):
+   def generate_MIP_cluster(self):
         pos = self.generate_position()
-        Q = self.generate_charge(self.generate_mean_charge(q, sigG), sigL)
+        Q = self.generate_charge(self.generate_mean_charge(self.q, self.sigG), self.sigL)
         
         # Create an array of size 10 for the cluster
         clus = [0] * 10
@@ -61,9 +73,9 @@ class ClusterSimulator:
                 clus[i] = 0
         return clus
 
-    def generate_2MIP_cluster(self, delta_pos=3, q=100, sigG=10, sigL=20, xt0=0.8, xt1=0.1, noise=8):
-        clus1 = self.generate_MIP_cluster(q, sigG, sigL, xt0, xt1, noise)
-        clus2 = self.generate_MIP_cluster(q, sigG, sigL, xt0, xt1, noise)
+    def generate_2MIP_cluster(self, delta_pos=3):
+        clus1 = self.generate_MIP_cluster()
+        clus2 = self.generate_MIP_cluster()
         dp = round(rand.Uniform(1, delta_pos))
         clusd = [0] * 10
         for i in range(len(clusd)):
