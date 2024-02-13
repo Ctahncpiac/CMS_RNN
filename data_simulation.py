@@ -10,11 +10,11 @@ import json
 
 rand = TRandom3(int(time.time()))
 class ClusterSimulator:
-   def __init__(self, config_file):
+    def __init__(self, config_file):
         self.config_file = config_file
         self.load_config(config_file)
       
-   def load_config(self, config_file):
+    def load_config(self, config_file):
         with open(config_file) as f:
             config = json.load(f)
         self.q = config["q"]
@@ -22,9 +22,9 @@ class ClusterSimulator:
         self.sigL = config["sigL"]
         self.xt0 = config["xt0"]
         self.xt1 = config["xt1"]
-        self.noise = config["noise"]  
-
-    # Generate a position between 0 and 1 within a strip
+        self.noise = config["noise"] 
+        
+# Generate a position between 0 and 1 within a strip
     def generate_position(self):
         return rand.Uniform(1)
     
@@ -45,7 +45,7 @@ class ClusterSimulator:
             y = rand.uniform(0,1)
         return theta
 
-  def generate_MIP_cluster(self):
+    def generate_MIP_cluster(self):
         pos = self.generate_position()
         Q = self.generate_charge(self.generate_mean_charge(self.q, self.sigG), self.sigL)
         
@@ -89,7 +89,7 @@ class ClusterSimulator:
                 clusd[i] = clus1[i]
         return clusd
 
-      def set_config_file(self, config_file):
+    def set_config_file(self, config_file):
         self.config_file = config_file
         self.load_config(config_file)
 
