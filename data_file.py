@@ -3,9 +3,7 @@ from ROOT import TFile, TTree
 from data_simulation import ClusterSimulator
 
 class file:
-    def __init__(self):
-        pass
-    def cfile(self,name,ngen):
+    def cfile(name,ngen):
 
         f = TFile(str(str(name)+ '.root'), "RECREATE")
         tsgn = TTree("tsgn", "sgn")
@@ -19,7 +17,7 @@ class file:
         #    tsgn.Branch("clus_" + str(i), xsng[i], "clus_" + str(i) + "/F")
         tbkg.Branch("clus", xbkg, "xbkg[10]/F")
         tsgn.Branch("clus", xsng, "xsng[10]/F")    
-        simulator=ClusterSimulator("config1.json")
+        simulator=ClusterSimulator()
         for i in range(ngen):
             onemip = simulator.generate_MIP_cluster()
             for i in range(len(onemip)):
