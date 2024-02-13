@@ -1,34 +1,49 @@
 import tensorflow as tf
 import keras
-from keras.models import Sequential
-from keras.layers.core import Dens
 import ROOT
-from ROOT import TMVA
-#from data_file import ... 
-
+from ROOT import TMVA, TFile
+from data_file import file
 
 #Classification
-archString = "CPU" #could be "GPU"
 
 class Classification:
-    def __init__(self):
-        pass
+    
+    def __init__(self, name='test',ngen=10000, writeOutputFile=True):
+        
+        #Utilisation of GPU if avaible, else CPU is used
+        self.useGPU = ROOT.gSystem.GetFromPipe("root-config --has-tmva-gpu") == "yes"
+        self.archString = "GPU" if self.useGPU else "CPU"
+        
+        #Input file to use
+        self.inputFileName = name +'.root'
+        fileDoesNotExist = ROOT.gSystem.AccessPathName(self.inputFileName)
+        
+        #Checking if it does exist
+        if fileDoesNotExist:
+            file.cfile(name,ngen)
 
+        self.inputFile = TFile.Open(self.inputFileName)
+        if self.inputFile is None:
+            raise ROOT.Error("Error opening input file %s - exit", self.inputFileName.Data())
+
+        print("--- RNNClassification  : Using input file: {}".format(self.inputFile.GetName()))
+
+        self.outfileName = "data_RNN_" + name + ".root"
+        self.outputFile = None
+
+        if writeOutputFile:
+            self.outputFile = TFile.Open(self.outfileName, "RECREATE") 
+    
     #RNN , LSTM, GRU    
-    def TMVA(self,type=3 , batch=100, epoch=10, nEvts=1000, pB=0.8, pS=0.8): #Default values
+    def tmva(self, type=3 , batchSize=100, maxepochs=10, nEvts=1000, pB=0.8, pS=0.8): #Default values
         
         rnn_types = ["RNN", "LSTM", "GRU"]
         use_rnn_type = [1, 1, 1]
         #use_type = 1
-        batchSize = batch 
-        maxepochs = epoch   
-
-        outputFile = TFile.Open("data_RNN.root", "RECREATE")
-
 
         factory = TMVA.Factory(
             "TMVAClassification",
-            outputFile,
+            self.outputFile,
             V=False,
             Silent=False,
             Color=True,
@@ -38,12 +53,14 @@ class Classification:
             AnalysisType="Classification",
             ModelPersistence=True,
         )
-        dataloader = TMVA.DataLoader("dataset")
-        inputFile  = TFile("tree.root","READ")   #File to read (link to data_file.py)
-        signalTree = inputFile.Get("tsgn")
-        background = inputFile.Get("tbkg")
 
-        ninputs = 10
+        dataloader = TMVA.DataLoader("dataset")
+
+        signalTree = self.inputFile.Get("tsgn")
+        background = self.inputFile.Get("tbkg")
+
+        ninputs = 10 #must be link to nb of cluster in data_simulation   
+
         dataloader.AddVariablesArray("clus", ninputs)
 
         nTrainSig = pS * nEvts 
@@ -52,6 +69,9 @@ class Classification:
        # Apply additional cuts on the signal and background samples (can be different)
         mycuts = ""  # for example: TCut mycuts = "abs(var1)<0.5 && abs(var2-0.5)<1";
         mycutb = ""                                             
+        
+        dataloader.AddSignalTree(signalTree, 1.0)
+        dataloader.AddBackgroundTree(background, 1.0)
 
         # build the string options for DataLoader::PrepareTrainingAndTestTree
         dataloader.PrepareTrainingAndTestTree(
@@ -65,11 +85,8 @@ class Classification:
             V=False,
             CalcCorrelations=False,
         )
-        
-        dataloader.AddSignalTree(signalTree, 1.0)
-        dataloader.AddBackgroundTree(background, 1.0)
         #AUC area under curve
-
+        
         for i in range(3):
                 if not use_rnn_type[i]:
                     continue
@@ -106,14 +123,10 @@ class Classification:
                     InputLayout=str(ninputs) + "|" + "1",
                     Layout=rnnLayout,
                     TrainingStrategy=trainingString1,
-                    Architecture=archString
+                    Architecture=self.archString
                 )
+        return factory
                 
-        factory.TrainAllMethods()
-        factory.TestAllMethods()
-        factory.EvaluateAllMethods()        
-
-
     #Keras
     def PyMVA(self,type=3 , batch=100, epoch=10): #Default values
 
@@ -143,7 +156,7 @@ class Classification:
         signalTree = inputFile.Get("tsgn")
         background = inputFile.Get("tbkg")
 
-        ninputs = 10
+        ninputs = 10  
         dataloader.AddVariablesArray("clus", ninputs)
 
         nTrainSig = pS * nEvts 
@@ -221,9 +234,3 @@ class Classification:
                         BatchSize=batchSize,
                         GpuOptions="allow_growth=True",
                     )
- 
-
-
-
-
-
