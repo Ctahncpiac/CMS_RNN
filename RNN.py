@@ -35,11 +35,14 @@ class Classification:
             self.outputFile = TFile.Open(self.outfileName, "RECREATE") 
     
     #RNN , LSTM, GRU    
-    def tmva(self, type=3 , batchSize=100, maxepochs=10, nEvts=1000, pB=0.8, pS=0.8): #Default values
+    def tmva(self, use_type=3 , batchSize=100, maxepochs=10, nEvts=1000, pB=0.8, pS=0.8): #Default values
         
         rnn_types = ["RNN", "LSTM", "GRU"]
         use_rnn_type = [1, 1, 1]
-        #use_type = 1
+        
+        if 0 <= use_type < 3:
+            use_rnn_type = [0, 0, 0]
+            use_rnn_type[use_type] = 1
 
         factory = TMVA.Factory(
             "TMVAClassification",
@@ -128,11 +131,14 @@ class Classification:
         return factory
                 
     #Keras
-    def PyMVA(self, type=3 , batchSize=100, maxepochs=10, nEvts=1000, pB=0.8, pS=0.8): #Default values
+    def PyMVA(self, use_type=3 , batchSize=100, maxepochs=10, nEvts=1000, pB=0.8, pS=0.8): #Default values
 
         rnn_types = ["RNN", "LSTM", "GRU"]
         use_rnn_type = [1, 1, 1]
-        #use_type = 1
+        
+        if 0 <= use_type < 3:
+            use_rnn_type = [0, 0, 0]
+            use_rnn_type[use_type] = 1
 
         factory = TMVA.Factory(
             "TMVAClassification",
