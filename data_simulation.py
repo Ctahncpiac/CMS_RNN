@@ -57,10 +57,10 @@ class ClusterSimulator:
         clus[5] = Q * (1 - pos)
         
         # Apply a cross-talk effect
-        tmp_3 = clus[4] * xt1
-        tmp_4 = clus[4] * xt0 + clus[5] * xt1
-        tmp_5 = clus[5] * xt0 + clus[4] * xt1
-        tmp_6 = clus[5] * xt1
+        tmp_3 = clus[4] * self.xt1
+        tmp_4 = clus[4] * self.xt0 + clus[5] * self.xt1
+        tmp_5 = clus[5] * self.xt0 + clus[4] * self.xt1
+        tmp_6 = clus[5] * self.xt1
         
         clus[3] = tmp_3
         clus[4] = tmp_4
@@ -69,11 +69,11 @@ class ClusterSimulator:
         
         # Add noise
         for i in range(len(clus)):
-            clus[i] += rand.Gaus(0, noise)
+            clus[i] += rand.Gaus(0, self.noise)
         
         # Apply threshold
         for i in range(len(clus)):
-            if clus[i] < 3 * noise:
+            if clus[i] < 3 * self.noise:
                 clus[i] = 0
         return clus
 
@@ -98,7 +98,11 @@ class ClusterSimulator:
 if __name__ == "__main__":
     simulator = ClusterSimulator("config1.json")
     print(simulator.q) # Example of access to a configured variable
+    print(simulator.generate_MIP_cluster())
+    print(simulator.generate_2MIP_cluster())
 
    # Load a new configuration file and compare results
     simulator.set_config_file("config2.json")
     print(simulator.q)  # New value for variable q
+    print(simulator.generate_MIP_cluster())
+    print(simulator.generate_2MIP_cluster())
