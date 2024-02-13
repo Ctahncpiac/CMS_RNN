@@ -1,4 +1,4 @@
-import tensorflow as tf
+import tensorflow
 import keras
 import ROOT
 from ROOT import TMVA, TFile
@@ -128,20 +128,15 @@ class Classification:
         return factory
                 
     #Keras
-    def PyMVA(self,type=3 , batch=100, epoch=10): #Default values
+    def PyMVA(self, type=3 , batchSize=100, maxepochs=10, nEvts=1000, pB=0.8, pS=0.8): #Default values
 
         rnn_types = ["RNN", "LSTM", "GRU"]
         use_rnn_type = [1, 1, 1]
         #use_type = 1
-        batchSize = batch 
-        maxepochs = epoch   
-
-        outputFile = TFile.Open("data_RNN.root", "RECREATE")
-
 
         factory = TMVA.Factory(
             "TMVAClassification",
-            outputFile,
+            self.outputFile,
             V=False,
             Silent=False,
             Color=True,
@@ -151,12 +146,14 @@ class Classification:
             AnalysisType="Classification",
             ModelPersistence=True,
         )
-        dataloader = TMVA.DataLoader("dataset")
-        inputFile  = TFile("tree.root","READ")   #File to read (link to data_file.py)
-        signalTree = inputFile.Get("tsgn")
-        background = inputFile.Get("tbkg")
 
-        ninputs = 10  
+        dataloader = TMVA.DataLoader("dataset")
+
+        signalTree = self.inputFile.Get("tsgn")
+        background = self.inputFile.Get("tbkg")
+
+        ninputs = 10 #must be link to nb of cluster in data_simulation   
+
         dataloader.AddVariablesArray("clus", ninputs)
 
         nTrainSig = pS * nEvts 
@@ -165,6 +162,9 @@ class Classification:
        # Apply additional cuts on the signal and background samples (can be different)
         mycuts = ""  # for example: TCut mycuts = "abs(var1)<0.5 && abs(var2-0.5)<1";
         mycutb = ""                                             
+        
+        dataloader.AddSignalTree(signalTree, 1.0)
+        dataloader.AddBackgroundTree(background, 1.0)
 
         # build the string options for DataLoader::PrepareTrainingAndTestTree
         dataloader.PrepareTrainingAndTestTree(
@@ -178,11 +178,8 @@ class Classification:
             V=False,
             CalcCorrelations=False,
         )
-        
-        dataloader.AddSignalTree(signalTree, 1.0)
-        dataloader.AddBackgroundTree(background, 1.0)
         #AUC area under curve
-
+        
         for i in range(3):
             if use_rnn_type[i]:
                 modelName = "model_" + rnn_types[i] + ".h5"
@@ -234,3 +231,8 @@ class Classification:
                         BatchSize=batchSize,
                         GpuOptions="allow_growth=True",
                     )
+        return factory
+
+
+
+
