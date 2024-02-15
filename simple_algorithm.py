@@ -1,4 +1,5 @@
 from data_simulation import ClusterSimulator
+import matplotlib as plt 
 
 class SimpleAlgo:
     def __init__(self, cluster_simulator):
