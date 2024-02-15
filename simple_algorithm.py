@@ -23,7 +23,7 @@ class SimpleAlgo:
             background_detected = 0
             false_positives = 0
 
-            for _ in range(num_samples):
+            for i in range(num_samples):
                 cluster = self.cluster_simulator.generate_MIP_cluster()
                 if self.is_signal(cluster, threshold):
                     signal_detected += 1
