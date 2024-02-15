@@ -1,52 +1,48 @@
-import random
+class SimpleAlgo:
+    def __init__(self, cluster_simulator):
+        self.cluster_simulator = cluster_simulator
 
-class DetectorSignalClassifier:
-    def __init__(self, particle_threshold, noise_threshold):
-        self.particle_threshold = particle_threshold
-        self.noise_threshold = noise_threshold
-
-    def classify_signal(self, signal_metrics):
-        if signal_metrics >= self.particle_threshold:
-            return "Particle Signal"
-        elif signal_metrics <= self.noise_threshold:
-            return "Background Noise"
+    def is_signal(self, cluster):
+        # Check if the cluster is a signal based on some criteria
+        # define your criteria here
+        total_charge = sum(cluster)
+        if total_charge > 10:  # Define your threshold for signal detection
+            return True
         else:
-            return "Uncertain"
+            return False
 
-def generate_particle_signal():
-    # Generate random signal metrics for particle signals
-    return random.uniform(800, 1200)
+    def evaluate_performance(self, num_samples=1000):
+        # Initialize counters
+        signal_detected = 0
+        background_detected = 0
+        false_positives = 0
 
-def generate_background_noise():
-    # Generate random signal metrics for background noise
-    return random.uniform(0, 50)
+        # Simulate clusters and evaluate performance
+        for _ in range(num_samples):
+            cluster = self.cluster_simulator.generate_MIP_cluster()
+            if self.is_signal(cluster):
+                signal_detected += 1
+            else:
+                background_detected += 1
 
+            # Check false positives
+            if sum(cluster) > 10:  # Consider it as a signal
+                if not self.is_signal(cluster):
+                    false_positives += 1
+
+        # Calculate rates
+        signal_efficiency = signal_detected / num_samples
+        background_efficiency = background_detected / num_samples
+        false_positive_rate = false_positives / num_samples
+
+        return signal_efficiency, background_efficiency, false_positive_rate
+
+
+# Example of using the SimpleAlgo class
 if __name__ == "__main__":
-    # Example thresholds (you need to adjust these based on your specific detector and data)
-    particle_threshold = 1000
-    noise_threshold = 50
-
-    # Create an instance of the signal classifier
-    classifier = DetectorSignalClassifier(particle_threshold, noise_threshold)
-
-    # Generate dataset
-    num_samples = 1000
-    dataset = []
-
-    for _ in range(num_samples):
-        if random.random() < 0.5:  # 50% chance of generating a particle signal
-            signal_metrics = generate_particle_signal()
-            label = "Particle Signal"
-        else:
-            signal_metrics = generate_background_noise()
-            label = "Background Noise"
-
-        # Classify the signal
-        classification = classifier.classify_signal(signal_metrics)
-
-        # Append sample to dataset
-        dataset.append((signal_metrics, label, classification))
-
-    # Print the dataset
-    for sample in dataset[:10]:  # Print the first 10 samples
-        print("Signal Metrics:", sample[0], "| True Label:", sample[1], "| Predicted Label:", sample[2])
+    simulator = ClusterSimulator("config1.json")
+    algo = SimpleAlgo(simulator)
+    signal_efficiency, background_efficiency, false_positive_rate = algo.evaluate_performance()
+    print("Signal Efficiency:", signal_efficiency)
+    print("Background Efficiency:", background_efficiency)
+    print("False Positive Rate:", false_positive_rate)
