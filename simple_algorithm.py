@@ -7,7 +7,7 @@ class SimpleAlgo:
     def is_signal(self, cluster, threshold):
         # Check if the cluster is a signal based on the given threshold
         total_charge = sum(cluster)
-        if total_charge > threshold:
+        if total_charge > 15 :
             return True
         else:
             return False
@@ -31,7 +31,7 @@ class SimpleAlgo:
                     background_detected += 1
 
                     # Check false positives
-                    if sum(cluster) > threshold:
+                    if sum(cluster) < threshold:
                         false_positives += 1
 
             # Calculate rates
