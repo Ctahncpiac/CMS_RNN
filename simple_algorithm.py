@@ -1,3 +1,5 @@
+from data_simulation import ClusterSimulator
+
 class SimpleAlgo:
     def __init__(self, cluster_simulator):
         self.cluster_simulator = cluster_simulator
