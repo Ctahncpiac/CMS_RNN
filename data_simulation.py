@@ -2,18 +2,21 @@ import time
 from ROOT import TRandom3
 import math as m
 import numpy as np
+import random
+import matplotlib.pyplot as plt
 import json
 
 
-   # def __init__(self):
-       # pass
 
 rand = TRandom3(int(time.time()))
 class ClusterSimulator:
     def __init__(self, config_file):
         self.config_file = config_file
+        self.theta = None  # Initialisation de theta à None
+        self.pos = None
         self.load_config(config_file)
       
+    
     def load_config(self, config_file):
         with open(config_file) as f:
             config = json.load(f)
@@ -24,37 +27,47 @@ class ClusterSimulator:
         self.xt1 = config["xt1"]
         self.noise = config["noise"] 
         
+        
 # Generate a position between 0 and 1 within a strip
     def generate_position(self):
         return rand.Uniform(1)
+    
     
     # Generate the mean charge (mean of Landau)    
     def generate_mean_charge(self, mu, sig):
         return rand.Gaus(mu, sig)
     
+    
     # Generate the total charge    
     def generate_charge(self, mu, sig):
         return rand.Landau(mu, sig)
     
-    # Angular distribution for theta in x^2 + 1 between -pi/2 and pi/2
-    def distr_theta(self): 
-        theta=m.pi/2
-        y=2
-        while y>m.pow(np.cos(theta),2) + 1 :
-            theta = rand.Uniform(-m.pi/2,m.pi/2)  
-            y = rand.uniform(0,1)
-        return theta
+    
+    def distr_theta(self):
+        # Générer une variable entre 0 et 1
+        u = rand.Uniform(1)
+    
+        # Exponentielle décroissante pour ajuster la probabilité
+        # Plus le paramètre k est grand, plus la décroissance est rapide
+        k = 4.0
+        theta_rad = np.pi / 2 - np.log(1 + k * u) * (np.pi / 6)
 
+        return theta_rad
+
+    
     def generate_MIP_cluster(self):
-        pos = self.generate_position()
+        self.pos = self.generate_position()
+        self.theta = self.distr_theta()  # Maintenant, theta est stocké comme attribut de l'instance
         Q = self.generate_charge(self.generate_mean_charge(self.q, self.sigG), self.sigL)
+        Q *= np.cos(self.theta)   # Utilisation de self.theta ici
+        
         
         # Create an array of size 10 for the cluster
         clus = [0] * 10
         
         # Charge the main charge among 2 clusters based on the input position
-        clus[4] = Q * pos
-        clus[5] = Q * (1 - pos)
+        clus[4] = Q * self.pos
+        clus[5] = Q * (1 - self.pos)
         
         # Apply a cross-talk effect
         tmp_3 = clus[4] * self.xt1
@@ -77,6 +90,7 @@ class ClusterSimulator:
                 clus[i] = 0
         return clus
 
+    
     def generate_2MIP_cluster(self, delta_pos=3):
         clus1 = self.generate_MIP_cluster()
         clus2 = self.generate_MIP_cluster()
@@ -89,6 +103,7 @@ class ClusterSimulator:
                 clusd[i] = clus1[i]
         return clusd
 
+    
     def set_config_file(self, config_file):
         self.config_file = config_file
         self.load_config(config_file)
@@ -98,11 +113,16 @@ class ClusterSimulator:
 if __name__ == "__main__":
     simulator = ClusterSimulator("config1.json")
     print(simulator.q) # Example of access to a configured variable
-    print(simulator.generate_MIP_cluster())
-    print(simulator.generate_2MIP_cluster())
+    print("Angle theta généré aléatoirement (en degrés) :", simulator.distr_theta()* (180/np.pi))
+    liste1 = simulator.generate_MIP_cluster()
+    liste2 = simulator.generate_2MIP_cluster()
+    print(liste1)
+    print(liste2)
 
    # Load a new configuration file and compare results
     simulator.set_config_file("config2.json")
     print(simulator.q)  # New value for variable q
-    print(simulator.generate_MIP_cluster())
-    print(simulator.generate_2MIP_cluster())
+    liste3 = simulator.generate_MIP_cluster()
+    liste4 = simulator.generate_2MIP_cluster()
+    print(liste3)
+    print(liste4)
