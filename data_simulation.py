@@ -44,15 +44,17 @@ class ClusterSimulator:
     
     
     def distr_theta(self):
-        # Générer une variable entre 0 et 1
-        u = rand.Uniform(1)
-    
-        # Exponentielle décroissante pour ajuster la probabilité
-        # Plus le paramètre k est grand, plus la décroissance est rapide
-        k = 4.0
-        theta_rad = np.pi / 2 - np.log(1 + k * u) * (np.pi / 6)
+        # Générer une variable aléatoire uniforme entre 0 et 1
+        u = np.random.rand()
 
-        return theta_rad
+        # Calculer l'angle theta en fonction de la distribution x^2
+        theta = np.arcsin(np.sqrt(u) * (np.sin(np.pi/3)))
+
+        # Choisir aléatoirement la direction de l'angle
+        if np.random.rand() < 0.5:
+        theta = -theta
+        
+        return theta
 
     
     def generate_MIP_cluster(self):
