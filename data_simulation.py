@@ -5,7 +5,7 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 import json
-from Trajectory_with_plot.py import ParticleTrajectory
+from Trajectory_without_plot.py import ParticleTrajectory
 
 
 rand = TRandom3(int(time.time()))
@@ -47,10 +47,10 @@ class ClusterSimulator:
     def generate_MIP_cluster(self):
         
         particle_trajectory = ParticleTrajectory()
-        D = 10 # Largeur de l'espace entre les deux plans
-        d = 3.0  # Hauteur de chaque petit rectangle
-        particle_trajectory.tracer_droites_et_rectangles(D, d)
-        X, S, C = particle_trajectory.X, particle_trajectory.S, particle_trajectory.C
+        r = 15 # resolution
+        t = 14  # epaisseur
+        w = 17 #largeur
+        X, S , C = particle_trajectory.tracer_droites_et_rectangles(r,t,w)
         
         # Create an array of size 10 for the cluster
         clus = particle_trajectory.ChargeCluster(cross_talk_factor=0.5)  # Ajustez le facteur selon le besoin
@@ -70,7 +70,7 @@ class ClusterSimulator:
         clus1 = self.generate_MIP_cluster()
         clus2 = self.generate_MIP_cluster()
         dp = round(rand.Uniform(1, delta_pos))
-        clusd = [0] * 10
+        clusd = [0] * len(clus1)
         for i in range(len(clusd)):
             if (i + dp) < len(clusd):
                 clusd[i] = clus1[i] + clus2[i + dp]
