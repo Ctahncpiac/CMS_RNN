@@ -3,68 +3,52 @@ import matplotlib.pyplot as plt
 import random as rand
 
 class ParticleTrajectory:
-    def generate_position(self,D):
-        self.D=D
-        # Générer une piste aléatoire entre 0 et 9
-        #piste = rand.randint(0, self.D-1)
-        # Générer une position initiale aléatoire à l'intérieur de cette piste
-        #return piste * self.D / 10 + rand.uniform(0, self.D / 10)
-        return rand.uniform(0,self.D)  #retoune un réel compris entre 0 et D (de manière uniforme)
+    def generate_position(self,r):
+        self.r=r
+        return rand.uniform(0,self.r)  #retoune un réel compris entre 0 et r (de manière uniforme)
     
-    def distr_theta(self):                                              
-        # Calculer l'angle theta en fonction de la distribution uniforme
-        theta = np.random.uniform(np.pi / 4, np.pi / 2)
+    def distr_theta(self):
+        # Générer une variable aléatoire uniforme entre 0 et 1
+        u = np.random.rand()                                                #pq utiliser np.random.rand alors qu'on a rand.uniform(0,1) ?
+        # Calculer l'angle theta en fonction de la distribution x^2
+        theta = np.arcsin(np.sqrt(u) * np.sin(np.pi / 3))
         # Choisir aléatoirement la direction de l'angle
         if np.random.rand() < 0.5:
-            return np.pi/2 - theta  # Particule partant vers la droite
+            return np.pi / 2 - theta  # Particule partant vers la droite
         else:
-            return -(np.pi/2 - theta)  # Particule partant vers la gauche
+            return -(np.pi / 2 - theta)  # Particule partant vers la gauche
 
-    def tracer_droites_et_rectangles(self, D, d):
-        self.D=D
-        self.d=d
-        
-        ############
-        #Affichage graphique des colonnes
-        # Initialisations pour le tracé
-        plt.figure(figsize=(10, 10))
-        plt.plot([0, self.D], [0, 0], 'k')  # Première droite
-        plt.plot([0, self.D], [self.d, self.d], 'k')  # Deuxième droite
-        
-        # Tracer les droites et rectangles
-        for i in range(int(self.D)+1):
-            plt.plot([i * self.D/10, i * self.D/10], [0, self.d], 'k')  # Droites perpendiculaires
-        for i in range(int(self.D)):
-            plt.fill([i * self.D/10, (i+1) * self.D/10, (i+1) * self.D/10, i * self.D/10], [0, 0, self.d, self.d], 'gray', alpha=0.3)
-        
-        ############
+    def tracer_droites_et_rectangles(self, r, t ,w):
+        self.r=r
+        self.t=t
+        self.w=w
+        #Calculs of initial and final positions
 
-
-
-        #Calculs of initial and final positions 
+        #rescale coordinates 
         y_i=0
-        x_i = self.generate_position(self.D)
+        x_i = self.generate_position(self.r)
         angle = self.distr_theta()
-        x_f=x_i+np.tan(angle)*self.d
-        y_f=self.d
+        x_f=x_i+np.tan(angle)*self.t
+        y_f=self.t
+
         if x_f < 0 :
             x_f=0
             y_f=(x_f-x_i)/np.tan(angle)
 
-        elif x_f > self.D:
+        elif x_f > self.r:
 
-            x_f=self.D
+            x_f=self.r
             y_f=(x_f-x_i)/np.tan(angle)
         
-        X=[x_i,x_f]
-        Y=[y_i,y_f]    
+        #real coordinates 
+        X=[x_i*(self.w/self.r),x_f*(self.w/self.r)]
+        Y=[y_i*(self.w/self.r),y_f*(self.w/self.r)]    
         #Attribution segment 
-        
-        S=[0]*int(self.D)
+        S=[0]*self.r
         d=abs(x_f-x_i)
         
-        if x_f == self.D:  #to ensure the case where x_f=D and int(x_i)=D-1 which will lead to d_int=1
-            x_f = self.D -1 
+        if x_f == self.r:  #to ensure the case where x_f=D and int(x_i)=D-1 which will lead to d_int=1
+            x_f = self.r -1 
 
         d_int= int(x_f)-int(x_i)
 
@@ -94,47 +78,42 @@ class ParticleTrajectory:
 
             S[int(x_f)]=d 
         else :
-           S[int(x_i)]=d     #case where x_i and x_f are in the same column
-           
+            S[int(x_i)]=d     #case where x_i and x_f are in the same column
 
-        #Affichage graphique de la trajectoire
+
+        ############
+        #Affichage graphique des colonnes
+        
+        # Initialisations pour le tracé
+        plt.plot([0, self.w], [0, 0], 'k')  # Première droite
+        plt.plot([0, self.w], [self.t, self.t], 'k')  # Deuxième droite
+        
+        # Tracer les droites et rectangles
+        for i in range(self.r+1):
+            plt.plot([i *(self.w/self.r), i *(self.w/self.r)], [0, self.t], 'k')  # Droites perpendiculaires
 
         plt.plot(X, Y, 'r-', linewidth=2)
-
-        # Labels et légendes
-        plt.xlabel('Distance (unité de longueur)')
-        plt.ylabel('Distance (unité de longueur)')
-        plt.title('Passage d\'une particule à travers les plans du détecteur')
-        plt.legend(['Trajectoire de la particule'])
-        plt.gca().set_aspect('equal', adjustable='box')
         plt.show()
+        ############
 
-        C=[0]*self.D
-        C[int(x_i)]=self.d
+
+        C=[0]*self.r
+        C[int(x_i)]=self.t
 
         if angle !=0 :
-            C = [ i/np.sin(abs(angle)) for i in S]
+            C = [ (i*self.w)/(self.r * np.sin(abs(angle))) for i in S]
          
 
         return X, S, C
     
-    
-    # Fonction pour renvoyé la liste des charges déposé par piste.
-    def ChargeCluster(self) : 
-        K = 1.5  
-        for i in range (len(C)) : 
-            C[i]*= K
-        return C
-        
-        
+
 # Utilisation de la classe
 particle_trajectory = ParticleTrajectory()
-D = 10 # Largeur de l'espace entre les deux plans
-d = 3.0  # Hauteur de chaque petit rectangle
-X, S , C = particle_trajectory.tracer_droites_et_rectangles(D, d)
-print("Coordonées initiale - finale :", X)
-print("Projection sur l'abscisse :", S)
+r = 8 # resolution
+t = 14  # epaisseur
+w = 17 #largeur
+X, S , C = particle_trajectory.tracer_droites_et_rectangles(r,t,w)
+print("Coordonées x_i - x_f :", X)
+print("Projection sur l'abscisse (unité):", S)
 print("Segmentation",C)
 print("Distance totale parcourue :", sum(C))
-Charge_déposé = particle_trajectory.ChargeCluster()
-print(Charge_déposé)
