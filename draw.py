@@ -8,12 +8,9 @@ c2 = TCanvas()
 h = TH1F('h','',simulator.r,0,simulator.r)
 for j in range(ngen):
     clus = simulator.generate_MIP_cluster()
-    print(clus)
     for i in range(len(clus)):
-        print(i,clus[i])
         h.SetBinContent(i+1,clus[i])
-           
-           
+       
     h.SetLineColor(kBlue)
     h.SetFillColorAlpha(kBlue, 0.5) 
     h.SetFillStyle(3001) 
