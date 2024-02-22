@@ -46,7 +46,7 @@ class ClusterSimulator:
     
     def generate_MIP_cluster(self):
         
-                particle_trajectory = ParticleTrajectory()
+        particle_trajectory = ParticleTrajectory()
         D = 10 # Largeur de l'espace entre les deux plans
         d = 3.0  # Hauteur de chaque petit rectangle
         particle_trajectory.tracer_droites_et_rectangles(D, d)
