@@ -42,26 +42,18 @@ class ClusterSimulator:
     def generate_charge(self, mu, sig):
         return rand.Landau(mu, sig)
     
-    
-    def distr_theta(self):
-        # Générer une variable aléatoire uniforme entre 0 et 1
-        u = np.random.rand()
-
-        # Calculer l'angle theta en fonction de la distribution x^2
-        theta = np.arcsin(np.sqrt(u) * (np.sin(np.pi/3)))
-
-        # Choisir aléatoirement la direction de l'angle
-        if np.random.rand() < 0.5:
-        theta = -theta
-        
-        return theta
 
     
     def generate_MIP_cluster(self):
         
+                particle_trajectory = ParticleTrajectory()
+        D = 10 # Largeur de l'espace entre les deux plans
+        d = 3.0  # Hauteur de chaque petit rectangle
+        particle_trajectory.tracer_droites_et_rectangles(D, d)
+        X, S, C = particle_trajectory.X, particle_trajectory.S, particle_trajectory.C
         
         # Create an array of size 10 for the cluster
-        clus = particle_trajectory.ChargeCluster(cross_talk_factor=0.1)  # Ajustez le facteur selon le besoin
+        clus = particle_trajectory.ChargeCluster(cross_talk_factor=0.5)  # Ajustez le facteur selon le besoin
         
         # Add noise
         for i in range(len(clus)):
