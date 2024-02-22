@@ -58,29 +58,10 @@ class ClusterSimulator:
 
     
     def generate_MIP_cluster(self):
-        self.pos = self.generate_position()
-        self.theta = self.distr_theta()  # Maintenant, theta est stocké comme attribut de l'instance
-        Q = self.generate_charge(self.generate_mean_charge(self.q, self.sigG), self.sigL)
-        Q *= np.cos(self.theta)   # Utilisation de self.theta ici
         
         
         # Create an array of size 10 for the cluster
-        clus = [0] * 10
-        
-        # Charge the main charge among 2 clusters based on the input position
-        clus[4] = Q * self.pos
-        clus[5] = Q * (1 - self.pos)
-        
-        # Apply a cross-talk effect
-        tmp_3 = clus[4] * self.xt1
-        tmp_4 = clus[4] * self.xt0 + clus[5] * self.xt1
-        tmp_5 = clus[5] * self.xt0 + clus[4] * self.xt1
-        tmp_6 = clus[5] * self.xt1
-        
-        clus[3] = tmp_3
-        clus[4] = tmp_4
-        clus[5] = tmp_5
-        clus[6] = tmp_6
+        clus = particle_trajectory.ChargeCluster(cross_talk_factor=0.1)  # Ajustez le facteur selon le besoin
         
         # Add noise
         for i in range(len(clus)):
