@@ -11,16 +11,14 @@ class ParticleTrajectory:
         #return piste * self.D / 10 + rand.uniform(0, self.D / 10)
         return rand.uniform(0,self.D)  #retoune un réel compris entre 0 et D (de manière uniforme)
     
-    def distr_theta(self):
-        # Générer une variable aléatoire uniforme entre 0 et 1
-        u = np.random.rand()                                                #pq utiliser np.random.rand alors qu'on a rand.uniform(0,1) ?
-        # Calculer l'angle theta en fonction de la distribution x^2
-        theta = np.arcsin(np.sqrt(u) * np.sin(np.pi / 3))
+    def distr_theta(self):                                              
+        # Calculer l'angle theta en fonction de la distribution uniforme
+        theta = np.random.uniform(np.pi / 4, np.pi / 2)
         # Choisir aléatoirement la direction de l'angle
         if np.random.rand() < 0.5:
-            return np.pi / 2 - theta  # Particule partant vers la droite
+            return np.pi/2 - theta  # Particule partant vers la droite
         else:
-            return -(np.pi / 2 - theta)  # Particule partant vers la gauche
+            return -(np.pi/2 - theta)  # Particule partant vers la gauche
 
     def tracer_droites_et_rectangles(self, D, d):
         self.D=D
@@ -119,12 +117,24 @@ class ParticleTrajectory:
          
 
         return X, S, C
+    
+    
+    # Fonction pour renvoyé la liste des charges déposé par piste.
+    def ChargeCluster(self) : 
+        K = 1.5  
+        for i in range (len(C)) : 
+            C[i]*= K
+        return C
+        
+        
 # Utilisation de la classe
 particle_trajectory = ParticleTrajectory()
 D = 10 # Largeur de l'espace entre les deux plans
-d = 10.0  # Hauteur de chaque petit rectangle
+d = 3.0  # Hauteur de chaque petit rectangle
 X, S , C = particle_trajectory.tracer_droites_et_rectangles(D, d)
 print("Coordonées initiale - finale :", X)
 print("Projection sur l'abscisse :", S)
 print("Segmentation",C)
 print("Distance totale parcourue :", sum(C))
+Charge_déposé = particle_trajectory.ChargeCluster()
+print(Charge_déposé)
