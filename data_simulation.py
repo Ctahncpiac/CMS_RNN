@@ -5,7 +5,7 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 import json
-
+import Trajectory_with_plot.py
 
 
 rand = TRandom3(int(time.time()))
