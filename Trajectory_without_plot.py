@@ -93,7 +93,22 @@ class ParticleTrajectory:
          
 
         return X, S, C
-    
+
+
+    def ChargeCluster(self, cross_talk_factor=0.5):
+        K = 1.5  # Appliquer le facteur de gain initial
+        C_modified = [charge * K for charge in C]  # Applique le facteur K à chaque charge
+
+        # Appliquer l'effet de cross-talk
+        C_with_cross_talk = [0] * len(C_modified)
+        for i in range(len(C_modified)):
+            C_with_cross_talk[i] += C_modified[i]
+            if i > 0:
+                C_with_cross_talk[i - 1] += C_modified[i] * cross_talk_factor
+            if i < len(C_modified) - 1:
+                C_with_cross_talk[i + 1] += C_modified[i] * cross_talk_factor
+        return C_with_cross_talk
+
 
 # Utilisation de la classe
 particle_trajectory = ParticleTrajectory()
