@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import random as rand
+import random 
 
 class ParticleTrajectory:
     def generate_position(self,w):
         self.w=w
-        return rand.uniform(0,self.w)  #retoune un réel compris entre 0 et r (de manière uniforme)
+        return random.uniform(0,self.w)  #retoune un réel compris entre 0 et r (de manière uniforme)
     
     def distr_theta(self):
         # Générer une variable aléatoire uniforme entre 0 et 1
