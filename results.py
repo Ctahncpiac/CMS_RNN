@@ -4,10 +4,9 @@ from training import train
 from simple_algorithm import SimpleAlgo
 import matplotlib.pyplot as plt
 
-def comparison():
-    name = input("Please enter a file name: ")
+def comparison(name,type): #type = integrer 
     training=train()
-    T=training.execute(3 , 100, 3, 1000, 0.8, 0.8,name,1) #use_type=3 , batchSize=100, maxepochs=50, nEvts=1000, pB=0.8, pS=0.8,name='test',method=1 by default
+    T=training.execute(type , 100, 10, 1000, 0.8, 0.8,name,1) #Default value : use_type=3 , batchSize=100, maxepochs=10, nEvts=1000, pB=0.8, pS=0.8, name='tree',method=1 
     use_type=training.use_type
     c1 = T[0].GetROCCurve(T[1])
     c1.Draw()
@@ -29,9 +28,8 @@ def comparison():
     if T[2]:
         T[2].Close()  
 
-def hist_hyp(type): #type = "integral" ; "charge" ; "width" ; "position"
+def hist_hyp(name,type): #type = "integral" ; "charge" ; "width" ; "position"
 
-        name = input("Please enter a file name: ")
         hyp = SimpleAlgo(name, 1000) #name , ngen
         s_sng, s_bkg = hyp.hyp_t(type)
         
@@ -45,13 +43,14 @@ def hist_hyp(type): #type = "integral" ; "charge" ; "width" ; "position"
         for j in s_bkg:
             h2.Fill(j)
 
+        h2.SetLineColor(kBlue)
+        h2.SetFillColorAlpha(kBlue, 0.5) 
+        h2.SetFillStyle(3005) 
+
         h1.SetLineColor(kRed)
         h1.SetFillColorAlpha(kRed, 0.5) 
         h1.SetFillStyle(3004) 
 
-        h2.SetLineColor(kBlue)
-        h2.SetFillColorAlpha(kBlue, 0.5) 
-        h2.SetFillStyle(3005) 
 
         h1.Draw()
         h2.Draw('same') 
@@ -59,9 +58,8 @@ def hist_hyp(type): #type = "integral" ; "charge" ; "width" ; "position"
         c2.Draw()
         c2.Print("Hyp_" +type +'_'+ name + '.png')
 
-def plot_roc_curve(type): #type = "integral" ; "charge" ; "width"
+def plot_roc_curve(name,type): #type = "integral" ; "charge" ; "width"
         # Plot the ROC curve
-        name = input("Please enter a file name: ")
         algo = SimpleAlgo(name,1000)
         sng_e, bkg_r = algo.evaluate_performance(type,2000)  #threshold
         plt.figure()
@@ -71,10 +69,14 @@ def plot_roc_curve(type): #type = "integral" ; "charge" ; "width"
         plt.xlabel('Signal efficiency')
         plt.title('Receiver Operating Characteristic (ROC) Curve')
         plt.legend(loc="lower right")
-        plt.show()
+        plt.savefig('ROC_'+type+'.png')
 
-#plot_roc_curve("position")
-hist_hyp("charge")
+name = input("Please enter a file name: ")
+L=["integral" , "charge" , "width", "ratio"]
+for i in L:
+    plot_roc_curve(name,i)
+    hist_hyp(name,i)
+
 
 
 
