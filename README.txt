@@ -15,12 +15,12 @@ Recurrent Neural Network for CMS
 |
 |_ data_simulation.py
         |
-        |_data_file.py__{TFile, TTree }  
-                |
-                |_simple_algorithm.py  ___________________________
-                |                                                |
-                |_RNN.py ___{ TMVA methods & Keras }             |_results.py  #mostly graphics#       
-                    |                                            |    
-                    |_training.py _______________________________|
-
-  
+        |_data_file.py 
+        |         |
+        |         |_simple_algorithm.py  ___________________________
+        |         |                                                |
+        |         |_RNN.py                                         |_results.py       
+        |             |                                            |    
+        |             |_training.py _______________________________|
+        |
+        |_draw.py  
