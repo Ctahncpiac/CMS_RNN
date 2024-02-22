@@ -5,78 +5,163 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 import json
-from Trajectory_without_plot.py import ParticleTrajectory
+
 
 
 rand = TRandom3(int(time.time()))
+
 class ClusterSimulator:
+
     def __init__(self, config_file):
         self.config_file = config_file
-        self.theta = None  # Initialisation de theta à None
-        self.pos = None
         self.load_config(config_file)
       
     
     def load_config(self, config_file):
         with open(config_file) as f:
             config = json.load(f)
-        self.q = config["q"]
-        self.sigG = config["sigG"]
-        self.sigL = config["sigL"]
-        self.xt0 = config["xt0"]
-        self.xt1 = config["xt1"]
+        self.r = config["r"]
+        self.t = config["t"]
+        self.w = config["w"]
         self.noise = config["noise"] 
         
         
-# Generate a position between 0 and 1 within a strip
-    def generate_position(self):
-        return rand.Uniform(1)
+    def generate_position(self,w):
+        self.w=w
+        return random.uniform(0,self.w)  #retoune un réel compris entre 0 et r (de manière uniforme)
     
-    
-    # Generate the mean charge (mean of Landau)    
-    def generate_mean_charge(self, mu, sig):
-        return rand.Gaus(mu, sig)
-    
-    
-    # Generate the total charge    
-    def generate_charge(self, mu, sig):
-        return rand.Landau(mu, sig)
-    
+    def distr_theta(self):
 
+        x = rand.Gaus(np.pi/9, 0.2)
+        x = x * random.choice([-1, 1])
+        return x
     
-    def generate_MIP_cluster(self):
+    def segmentation(self, r, t ,w):
+        self.r=r
+        self.t=t
+        self.w=w
+        #Calculs of initial and final positions
+
+        #real coordinates
+        y_i=0
+        x_i = self.generate_position(self.w)
+        theta = self.distr_theta()
+        x_f=x_i+np.tan(theta)*self.t
+        y_f=self.t
+
+        if x_f < 0 :
+            x_f=0
+            y_f=(x_f-x_i)/np.tan(theta)
+
+        elif x_f > self.w:
+
+            x_f=self.w
+            y_f=(x_f-x_i)/np.tan(theta)
         
-        particle_trajectory = ParticleTrajectory()
-        r = 15 # resolution
-        t = 14  # epaisseur
-        w = 17 #largeur
-        X, S , C = particle_trajectory.tracer_droites_et_rectangles(r,t,w)
+         
+        X=[x_i,x_f]
+        Y=[y_i,y_f]
+
+        #rescale coordinates 
+        x_i= x_i*(self.r/self.w)
+        x_f= x_f*(self.r/self.w) 
+
+        #Attribution segment 
+        S=[0]*self.r
+        d=abs(x_f-x_i)
+
+        if x_f == self.r:  #to ensure the case where x_f=D and int(x_i)=D-1 which will lead to d_int=1
+            x_f = self.r -1 
+
+        d_int= int(x_f)-int(x_i)
+
+        if d_int > 0: #theta > 0
+
+            S[int(x_i)]=int(x_i+1)-x_i 
+            d=d-S[int(x_i)]
+
+            j=1    
+            while d>1:
+                S[int(x_i)+j]=1.0
+                d-=1
+                j+=1
+
+            S[int(x_f)]=d    
+              
+        elif d_int < 0:  #theta < 0
+
+            S[int(x_i)]= x_i - int(x_i)
+            d=d-S[int(x_i)]
+
+            j=1
+            while d>1:
+                S[int(x_i)-j]=1.0
+                d-=1
+                j+=1
+
+            S[int(x_f)]=d 
+        else :
+            S[int(x_i)]=d     #case where x_i and x_f are in the same column
+
+       
+        K = 30  # Appliquer le facteur de gain initial
+
+        if theta !=0 :
+
+            C = [ K * (i*self.w)/(self.r * np.sin(abs(theta))) for i in S]
+        else: 
+
+            C=[0]*self.r
+            C[int(x_i)]=self.t*K 
+
+
+        return [X,Y,S,C]
+
+
+##########################################################################################
+#                        Functions that will generate MIP and 2MIP                       #
+##########################################################################################
+
+    def ct_noise(self,clus_ct):
         
-        # Create an array of size 10 for the cluster
-        clus = particle_trajectory.ChargeCluster(cross_talk_factor=0.5)  # Ajustez le facteur selon le besoin
-        
+        self.clus_ct = clus_ct  # Ajustez le facteur selon le besoin
+       
+        #Add cross-talk effect        
+        tx0=0.1  #coeff  neighbourg
+        tx1 = 0.8 #self coeff
+
+        clus_ct = [0] * len(self.clus_ct)
+        clus_ct[0]=self.clus_ct[0]*tx1+self.clus_ct[1]*tx0
+        clus_ct[-1]=self.clus_ct[-1]*tx1+self.clus_ct[-2]*tx0
+
+        for i in range(1,len(self.clus_ct)-1):
+            clus_ct[i]=self.clus_ct[i]*tx1+self.clus_ct[i-1]*tx0+self.clus_ct[i+1]*tx0
         # Add noise
-        for i in range(len(clus)):
-            clus[i] += rand.Gaus(0, self.noise)
+    
+        for i in range(len(clus_ct)):
+            clus_ct[i] += rand.Gaus(0, self.noise)
         
         # Apply threshold
-        for i in range(len(clus)):
-            if clus[i] < 3 * self.noise:
-                clus[i] = 0
-        return clus
-
+        for i in range(len(clus_ct)):
+            if clus_ct[i] < 3 * self.noise: #the 3 value is arbitrary
+                clus_ct[i] = 0
+        return clus_ct
     
-    def generate_2MIP_cluster(self, delta_pos=3):
-        clus1 = self.generate_MIP_cluster()
-        clus2 = self.generate_MIP_cluster()
-        dp = round(rand.Uniform(1, delta_pos))
-        clusd = [0] * len(clus1)
-        for i in range(len(clusd)):
-            if (i + dp) < len(clusd):
-                clusd[i] = clus1[i] + clus2[i + dp]
-            else:
-                clusd[i] = clus1[i]
-        return clusd
+
+    def generate_MIP_cluster(self):
+
+        return self.ct_noise(self.segmentation(self.r,self.t,self.w)[3])
+    
+    def generate_2MIP_cluster(self):
+
+        clus1 = self.segmentation(self.r,self.t,self.w)[3]
+        clus2 = self.segmentation(self.r,self.t,self.w)[3]
+
+        clus3=[0]*len(clus1)
+        for i in range(len(clus1)):
+            clus3[i]=clus1[i]+clus2[i]       #add up clus before cross talk and noise
+
+        return self.ct_noise(clus3)
 
     
     def set_config_file(self, config_file):
