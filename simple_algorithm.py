@@ -1,3 +1,5 @@
+
+
 from data_simulation import ClusterSimulator
 from data_file import file
 from array import array
@@ -80,8 +82,12 @@ class SimpleAlgo:
                 return False
             
         elif self.type == "width" :
+            
+            fv=self.cluster.index(next(filter(lambda x: x!= 0, self.cluster),0))  #first non-zero value 
 
-            if len(list(filter(lambda x: x != 0, self.cluster))) <= self.threshold:
+            lv= len(self.cluster)-self.cluster[::-1].index(next(filter(lambda x: x!= 0, self.cluster[::-1]),0)) #last non-zero value
+
+            if len(self.cluster[fv:lv]) <= self.threshold:   #distance between the first non-zero value and the last non-zero value
                 return True
             else:
                 return False
@@ -93,7 +99,16 @@ class SimpleAlgo:
                 return True
              else:
                  return False
+        elif self.type == "ratio":
             
+            fv=self.cluster.index(next(filter(lambda x: x!= 0, self.cluster),0))
+
+            lv= len(self.cluster)-self.cluster[::-1].index(next(filter(lambda x: x!= 0, self.cluster[::-1]),0))
+
+            if sum(self.cluster)/len(self.cluster[fv:lv]) <= self.threshold:
+                return True
+            else:
+                return False
     def hyp_t(self,type): #Hypothesis test
 
         bins,vmin,vmax=0,0,0  #variables used for histogram in results.py
@@ -146,8 +161,10 @@ class SimpleAlgo:
 
             self.bins=150
             self.vmin=0
-            self.vmax=2000            
+            self.vmax=2000  
+
             for i in range(self.ngen):
+
                 s_sng.append(sum(self.tsng_list[i]))
                 s_bkg.append(sum(self.tbkg_list[i]))
             
@@ -156,9 +173,18 @@ class SimpleAlgo:
             self.bins=len(self.tsng_list[0])
             self.vmin=0
             self.vmax=len(self.tsng_list[0])
+
             for i in range(self.ngen):
-                s_sng.append(len(list(filter(lambda x: x != 0, self.tsng_list[i])))) 
-                s_bkg.append(len(list(filter(lambda x: x != 0, self.tbkg_list[i])))) 
+                
+                fv_sng=self.tsng_list[i].index(next(filter(lambda x: x!= 0, self.tsng_list[i]),0))
+                lv_sng= len(self.tsng_list[i])-self.tsng_list[i][::-1].index(next(filter(lambda x: x!= 0, self.tsng_list[i][::-1]),0))
+
+                fv_bkg=self.tbkg_list[i].index(next(filter(lambda x: x!= 0, self.tbkg_list[i]),0))
+                lv_bkg= len(self.tbkg_list[i])-self.tbkg_list[i][::-1].index(next(filter(lambda x: x!= 0, self.tbkg_list[i][::-1]),0))
+
+
+                s_sng.append(len(self.tsng_list[i][fv_sng:lv_sng]))
+                s_bkg.append(len(self.tbkg_list[i][fv_bkg:lv_bkg])) 
         
         elif self.type == "position":
             
@@ -167,12 +193,33 @@ class SimpleAlgo:
             self.vmax=len(self.tsng_list[0]) 
 
             for i in range(self.ngen):
+
                 s_mclus=self.tsng_list[i].copy()
                 s_mclus.sort()
+
                 b_mclus=self.tbkg_list[i].copy()
                 b_mclus.sort()
+
                 s_sng.append(abs(self.tsng_list[i].index(s_mclus[-1])-self.tsng_list[i].index(s_mclus[-2])))
                 s_bkg.append(abs(self.tbkg_list[i].index(b_mclus[-1])-self.tbkg_list[i].index(b_mclus[-2])))
+        
+        elif self.type == "ratio":
+
+            self.bins=100
+            self.vmin=0
+            self.vmax=1000
+
+            for i in range(self.ngen):
+               
+                fv_sng=self.tsng_list[i].index(next(filter(lambda x: x!= 0, self.tsng_list[i]),0))
+                lv_sng= len(self.tsng_list[i])-self.tsng_list[i][::-1].index(next(filter(lambda x: x!= 0, self.tsng_list[i][::-1]),0))
+
+                fv_bkg=self.tbkg_list[i].index(next(filter(lambda x: x!= 0, self.tbkg_list[i]),0))
+                lv_bkg= len(self.tbkg_list[i])-self.tbkg_list[i][::-1].index(next(filter(lambda x: x!= 0, self.tbkg_list[i][::-1]),0))
+
+
+                s_sng.append(sum(self.tsng_list[i])/len(self.tsng_list[i][fv_sng:lv_sng]))
+                s_bkg.append(sum(self.tbkg_list[i])/len(self.tbkg_list[i][fv_bkg:lv_bkg]))                
 
         return s_sng, s_bkg 
     
