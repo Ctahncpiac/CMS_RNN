@@ -1,6 +1,12 @@
+import ROOT
+from ROOT import TRandom3
 import numpy as np
 import matplotlib.pyplot as plt
 import random 
+import time
+import numpy as np
+
+rand = TRandom3(int(time.time()))
 
 class ParticleTrajectory:
     def generate_position(self,w):
@@ -8,15 +14,18 @@ class ParticleTrajectory:
         return random.uniform(0,self.w)  #retoune un réel compris entre 0 et r (de manière uniforme)
     
     def distr_theta(self):
+        x = rand.Gaus(np.pi/8, 0.2)
+        x = x * random.choice([-1, 1])
+        return (x*180)/np.pi
         # Générer une variable aléatoire uniforme entre 0 et 1
-        u = np.random.rand()                                                #pq utiliser np.random.rand alors qu'on a rand.uniform(0,1) ?
+        #u = np.random.rand()                                                #pq utiliser np.random.rand alors qu'on a rand.uniform(0,1) ?
         # Calculer l'angle theta en fonction de la distribution x^2
-        theta = np.arcsin(np.sqrt(u) * np.sin(np.pi / 3))
+        #theta = np.arcsin(np.sqrt(u) * np.sin(np.pi / 3))
         # Choisir aléatoirement la direction de l'angle
-        if np.random.rand() < 0.5:
-            return np.pi / 2 - theta  # Particule partant vers la droite
-        else:
-            return -(np.pi / 2 - theta)  # Particule partant vers la gauche
+        #if np.random.rand() < 0.5:
+            #return np.pi / 2 - theta  # Particule partant vers la droite
+        #else:
+            #return -(np.pi / 2 - theta)  # Particule partant vers la gauche
 
     def tracer_droites_et_rectangles(self, r, t ,w):
         self.r=r
