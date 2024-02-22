@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 import random as rand
 
 class ParticleTrajectory:
-    def generate_position(self,r):
-        self.r=r
-        return rand.uniform(0,self.r)  #retoune un réel compris entre 0 et r (de manière uniforme)
+    def generate_position(self,w):
+        self.w=w
+        return rand.uniform(0,self.w)  #retoune un réel compris entre 0 et r (de manière uniforme)
     
     def distr_theta(self):
         # Générer une variable aléatoire uniforme entre 0 et 1
@@ -24,9 +24,9 @@ class ParticleTrajectory:
         self.w=w
         #Calculs of initial and final positions
 
-        #rescale coordinates 
+        #real coordinates
         y_i=0
-        x_i = self.generate_position(self.r)
+        x_i = self.generate_position(self.w)
         angle = self.distr_theta()
         x_f=x_i+np.tan(angle)*self.t
         y_f=self.t
@@ -35,18 +35,23 @@ class ParticleTrajectory:
             x_f=0
             y_f=(x_f-x_i)/np.tan(angle)
 
-        elif x_f > self.r:
+        elif x_f > self.w:
 
-            x_f=self.r
+            x_f=self.w
             y_f=(x_f-x_i)/np.tan(angle)
         
-        #real coordinates 
-        X=[x_i*(self.w/self.r),x_f*(self.w/self.r)]
-        Y=[y_i*(self.w/self.r),y_f*(self.w/self.r)]    
+         
+        X=[x_i,x_f]
+        Y=[y_i,y_f]
+
+        #rescale coordinates 
+        x_i= x_i*(self.r/self.w)
+        x_f= x_f*(self.r/self.w) 
+
         #Attribution segment 
         S=[0]*self.r
         d=abs(x_f-x_i)
-        
+
         if x_f == self.r:  #to ensure the case where x_f=D and int(x_i)=D-1 which will lead to d_int=1
             x_f = self.r -1 
 
@@ -92,7 +97,7 @@ class ParticleTrajectory:
 
 # Utilisation de la classe
 particle_trajectory = ParticleTrajectory()
-r = 8 # resolution
+r = 100 # resolution
 t = 14  # epaisseur
 w = 17 #largeur
 X, S , C = particle_trajectory.tracer_droites_et_rectangles(r,t,w)
