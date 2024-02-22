@@ -10,11 +10,12 @@ class file:
     
     def cfile(name,ngen):
 
+        simulator=ClusterSimulator("config1.json")
         f = TFile(name + '.root', "RECREATE")
         tsgn = TTree("tsgn", "sgn")
         tbkg = TTree("tbkg", "bkg")
 
-        clusSize = 10 #to be link to data_simulation
+        clusSize = simulator.r #to be link to data_simulation
         
         xsng = array('f',[0]*clusSize)
         xbkg = array('f',[0]*clusSize)
@@ -25,7 +26,7 @@ class file:
        
         tbkg.Branch("clus", xbkg, "xbkg[10]/F")
         tsgn.Branch("clus", xsng, "xsng[10]/F")    
-        simulator=ClusterSimulator()
+        
 
         for i in range(ngen):
             onemip = simulator.generate_MIP_cluster()

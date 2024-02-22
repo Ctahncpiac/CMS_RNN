@@ -56,7 +56,7 @@ def hist_hyp(name,type): #type = "integral" ; "charge" ; "width" ; "position"
         h2.Draw('same') 
 
         c2.Draw()
-        c2.Print("Hyp_" +type +'_'+ name + '.png')
+        c2.Print("prints/Hyp_" +type +'_'+ name + '.png')
 
 def plot_roc_curve(name,type): #type = "integral" ; "charge" ; "width"
         # Plot the ROC curve
@@ -69,15 +69,16 @@ def plot_roc_curve(name,type): #type = "integral" ; "charge" ; "width"
         plt.xlabel('Signal efficiency')
         plt.title('Receiver Operating Characteristic (ROC) Curve')
         plt.legend(loc="lower right")
-        plt.savefig('ROC_'+type+'.png')
+        plt.savefig('prints/ROC_'+type+'.png')
 
 name = input("Please enter a file name: ")
 L=["integral" , "charge" , "width", "ratio"]
-for i in L:
-    plot_roc_curve(name,i)
-    hist_hyp(name,i)
+#for i in L:
+#    plot_roc_curve(name,i)
+#    hist_hyp(name,i)
 
-
+#plot_roc_curve(name,L[1])
+hist_hyp(name,L[1])
 
 
 

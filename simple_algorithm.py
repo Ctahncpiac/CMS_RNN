@@ -10,6 +10,7 @@ class SimpleAlgo:
    
     def __init__(self ,name ,ngen ):
         
+        simulator=ClusterSimulator("config1.json")
         self.name=name
         self.ngen=ngen
 
@@ -33,7 +34,7 @@ class SimpleAlgo:
         tsng = f.Get("tsgn")
         tbkg = f.Get("tbkg")
         
-        clusSize = 10 #to be link to data_simulation
+        clusSize = simulator.r #to be link to data_simulation
         
         xsng = array('f',[0]*clusSize)
         xbkg = array('f',[0]*clusSize)

@@ -1,9 +1,7 @@
 import time
 from ROOT import TRandom3
-import math as m
 import numpy as np
 import random
-import matplotlib.pyplot as plt
 import json
 
 
@@ -104,7 +102,7 @@ class ClusterSimulator:
             S[int(x_i)]=d     #case where x_i and x_f are in the same column
 
        
-        K = 30  # Appliquer le facteur de gain initial
+        K = 5  # Appliquer le facteur de gain initial
 
         if theta !=0 :
 
@@ -169,20 +167,3 @@ class ClusterSimulator:
         self.load_config(config_file)
 
 
-# Example of using the ClusterSimulator class
-if __name__ == "__main__":
-    simulator = ClusterSimulator("config1.json")
-    print(simulator.q) # Example of access to a configured variable
-    print("Angle theta généré aléatoirement (en degrés) :", simulator.distr_theta()* (180/np.pi))
-    liste1 = simulator.generate_MIP_cluster()
-    liste2 = simulator.generate_2MIP_cluster()
-    print(liste1)
-    print(liste2)
-
-   # Load a new configuration file and compare results
-    simulator.set_config_file("config2.json")
-    print(simulator.q)  # New value for variable q
-    liste3 = simulator.generate_MIP_cluster()
-    liste4 = simulator.generate_2MIP_cluster()
-    print(liste3)
-    print(liste4)

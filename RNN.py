@@ -1,3 +1,4 @@
+from data_simulation import ClusterSimulator
 import tensorflow
 import os
 import keras
@@ -10,6 +11,7 @@ from data_file import file
 class Classification:
     
     def __init__(self, name , ngen, writeOutputFile=True):
+        self.simulator=ClusterSimulator("config1.json")
         self.name=name
         self.ngen=ngen
         #Utilisation of GPU if avaible, else CPU is used
@@ -71,7 +73,7 @@ class Classification:
         signalTree = self.inputFile.Get("tsgn")
         background = self.inputFile.Get("tbkg")
 
-        ninputs = 10 #must be link to nb of cluster in data_simulation   
+        ninputs = self.simulator.r #must be link to nb of cluster in data_simulation   
 
         dataloader.AddVariablesArray("clus", ninputs)
 
@@ -167,7 +169,7 @@ class Classification:
         signalTree = self.inputFile.Get("tsgn")
         background = self.inputFile.Get("tbkg")
 
-        ninputs = 10 #must be link to nb of cluster in data_simulation   
+        ninputs = self.simulator.r #must be link to nb of cluster in data_simulation   
 
         dataloader.AddVariablesArray("clus", ninputs)
 
