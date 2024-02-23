@@ -11,7 +11,7 @@ class file:
     def cfile(name,ngen):
 
         simulator=ClusterSimulator("config1.json")
-        f = TFile(name + '.root', "RECREATE")
+        f = TFile('data_root/'+name + '.root', "RECREATE")
         tsgn = TTree("tsgn", "sgn")
         tbkg = TTree("tbkg", "bkg")
 
@@ -29,10 +29,10 @@ class file:
                
 
         for i in range(ngen):
-            onemip = simulator.generate_MIP_cluster()
+            onemip = simulator.generate_MIP_cluster(2)
             for i in range(len(onemip)):
                 xsng[i] = onemip[i]
-            twomip = simulator.generate_2MIP_cluster()
+            twomip = simulator.generate_2MIP_cluster(1)
             for i in range(len(onemip)):
                 xbkg[i] = twomip[i]
             tsgn.Fill()

@@ -19,7 +19,7 @@ class Classification:
         self.archString = "GPU" if self.useGPU else "CPU"
         
         #Input file to use
-        self.inputFileName = self.name +'.root'
+        self.inputFileName = 'data_root/'+self.name +'.root'
         fileDoesNotExist = ROOT.gSystem.AccessPathName(self.inputFileName)
         
         #Checking if it does exist
@@ -73,7 +73,7 @@ class Classification:
         signalTree = self.inputFile.Get("tsgn")
         background = self.inputFile.Get("tbkg")
 
-        ninputs = self.simulator.r #must be link to nb of cluster in data_simulation   
+        ninputs = self.simulator.r 
 
         dataloader.AddVariablesArray("clus", ninputs)
 

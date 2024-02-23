@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 
 def comparison(name,type): #type = integrer 
     training=train()
-    T=training.execute(type , 100, 10, 1000, 0.8, 0.8,name,1) #Default value : use_type=3 , batchSize=100, maxepochs=10, nEvts=1000, pB=0.8, pS=0.8, name='tree',method=1 
+    T=training.execute(type , 100, 50, 10000, 0.8, 0.8,name,1) #Default value : use_type=3 , batchSize=100, maxepochs=10, nEvts=1000, pB=0.8, pS=0.8, name='tree',method=1 
     use_type=training.use_type
     c1 = T[0].GetROCCurve(T[1])
     c1.Draw()
-    c1.Print('ROC_'+name+'.png')
+    c1.Print('prints/ROC_'+name+'.png')
 
 
     rnn_types = ["TMVA_RNN", "TMVA_LSTM", "TMVA_GRU"]
@@ -69,17 +69,18 @@ def plot_roc_curve(name,type): #type = "integral" ; "charge" ; "width"
         plt.xlabel('Signal efficiency')
         plt.title('Receiver Operating Characteristic (ROC) Curve')
         plt.legend(loc="lower right")
-        plt.savefig('prints/ROC_'+algo.r+'_'+type+'_'+name+'.png')
+        plt.savefig('prints/ROC_pix_'+str(algo.b)+'_clus_'+str(algo.r)+'_'+type+'_'+name+'.png')
 
 name = input("Please enter a file name: ")
 L=["integral" , "charge" , "width", "ratio"]
-for i in L:
-#    plot_roc_curve(name,i)
-    hist_hyp(name,i)
+#for i in L:
+    #plot_roc_curve(name,i)
+    #hist_hyp(name,i)
 
 #plot_roc_curve(name,L)
-#hist_hyp(name,L[3])
+#hist_hyp(name,L[1])
 
+comparison(name,3)
 
 
 

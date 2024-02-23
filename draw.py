@@ -3,15 +3,15 @@ from data_simulation import ClusterSimulator
 
 # draw the data simulation
 print("")
-print("------------------NEW--------------------------")
+print("------------------MIP--------------------------")
 print("")
 c2 = TCanvas()
 simulator=ClusterSimulator("config1.json")
-ngen = 5
+ngen = 100
 c2 = TCanvas()
 h = TH1F('h','',simulator.r,0,simulator.r)
 for j in range(ngen):
-    clus = simulator.generate_MIP_cluster()
+    clus = simulator.generate_MIP_cluster(2)
     for i in range(len(clus)):
         h.SetBinContent(i+1,clus[i])
            
@@ -24,16 +24,15 @@ for j in range(ngen):
     c2.Update()
     c2.Modified()
     c2.Draw()
-    c2.Print('prints/clus_'+str(simulator.r)+'_MIP_'+str(j)+'.png')
-    #print(clus)
-    print(sum(clus))
+    c2.Print('clusters/clus_'+str(simulator.r)+'_MIP_'+str(j)+'.png')
+
 print("")
-print("-----------------------------------------------")
+print("--------------------2MIP---------------------------")
 print("")
 c2 = TCanvas()
 h = TH1F('h','',simulator.r,0,simulator.r)
 for j in range(ngen):
-    clus = simulator.generate_2MIP_cluster()
+    clus = simulator.generate_2MIP_cluster(1)
     for i in range(len(clus)):
         h.SetBinContent(i+1,clus[i])
            
@@ -46,9 +45,8 @@ for j in range(ngen):
     c2.Update()
     c2.Modified()
     c2.Draw()
-    c2.Print('prints/clus_'+str(simulator.r)+'_2MIP_'+str(j)+'.png')
-    #print(clus)
-    print(sum(clus))
+    c2.Print('clusters/clus_'+str(simulator.r)+'_2MIP_'+str(j)+'.png')
+
 
 print("")
 print("------------------END--------------------------")

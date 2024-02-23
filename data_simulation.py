@@ -13,6 +13,11 @@ class ClusterSimulator:
     def __init__(self, config_file):
         self.config_file = config_file
         self.load_config(config_file)
+
+        #Lists that compares who has the highest factor between MIP and 2MIP
+            
+        self.P=[]
+        self.L=[]
       
     
     def load_config(self, config_file):
@@ -31,11 +36,12 @@ class ClusterSimulator:
     
     def distr_theta(self):
 
-        x = rand.Gaus(np.pi/9, 0.2)
-        x = x * random.choice([-1, 1])
+        x = rand.Gaus(np.pi/15,0.12)*random.choice([-1, 1])
         return x
     
-    def segmentation(self, r, t ,w):
+    def charge(self, r, t ,w,G):
+
+        self.G=G   #Factor : useful to generate the same amount of charge in MIP and 2MIP, in this case for MIP: G=2 and 2MIP: G=1
         self.r=r
         self.t=t
         self.w=w
@@ -102,40 +108,35 @@ class ClusterSimulator:
         else :
             S[int(x_i)]=d     #case where x_i and x_f are in the same column
 
-       
-        d_max=np.sqrt((self.w/self.r)**2+self.t**2)
+   
+        Q=30  #gain for the charge
 
         if theta !=0 : 
 
-            C = [ (self.b*((i*self.w)/(self.r * np.sin(abs(theta)))))/d_max for i in S]
+            C = [ Q*self.G*((i*self.w)/(self.r * np.sin(abs(theta)))) for i in S]
         else: 
 
             C=[0]*self.r
-            C[int(x_i)]=self.b*(self.t/d_max) 
+            C[int(x_i)]=self.t*self.G
 
 
-        return [X,Y,S,C]
-#saturation / seuil à max / digitisation en y 
-##########################################################################################
-#                        Functions that will generate MIP and 2MIP                       #
-##########################################################################################
-
-    def ct_noise(self,clus_ct):
-        
-        self.clus_ct = clus_ct  # Ajustez le facteur selon le besoin
-       
-        #Add cross-talk effect        
+        return [X,Y,C]
+    
+    
+    def ADC(self,C): #Analog to Digital Converter
+        #Add cross-talk effect
+        self.C=C        
         tx0 = 0.1  #coeff  neighbourg
         tx1 = 0.8 #self coeff
 
         if self.r !=1:
-            clus_ct = [0] * len(self.clus_ct)
-            clus_ct[0]=self.clus_ct[0]*tx1+self.clus_ct[1]*tx0
-            clus_ct[-1]=self.clus_ct[-1]*tx1+self.clus_ct[-2]*tx0
+            clus_ct = self.C.copy()
+            clus_ct[0]=self.C[0]*tx1+self.C[1]*tx0
+            clus_ct[-1]=self.C[-1]*tx1+self.C[-2]*tx0
         
 
-            for i in range(1,len(self.clus_ct)-1):
-                clus_ct[i]=self.clus_ct[i]*tx1+self.clus_ct[i-1]*tx0+self.clus_ct[i+1]*tx0
+            for i in range(1,len(clus_ct)-1):
+                clus_ct[i]=self.C[i]*tx1+self.C[i-1]*tx0+self.C[i+1]*tx0
         
         # Add noise
     
@@ -144,25 +145,52 @@ class ClusterSimulator:
         
         # Apply threshold
         for i in range(len(clus_ct)):
-            if clus_ct[i] < 3 * self.noise: #the 3 value is arbitrary
-                clus_ct[i] = 0
-        return clus_ct
+            if clus_ct[i] < 2*self.noise: # arbitrary
+                clus_ct[i] = 0      
+
+        #ADC  (linear)
+        Q=30  #gain for the charge
+        q_threshold = 0.85*Q*max(sum(self.P),sum(self.L))*np.sqrt((self.w/self.r)**2+self.t**2) #all value greater than that will be set to 255 
+
+        for i in range(len(clus_ct)):
+            if clus_ct[i] >= q_threshold:
+                clus_ct[i]=self.b
+            else:
+                clus_ct[i]=int((clus_ct[i]*self.b)/q_threshold)
+        return clus_ct                    
+            
+
+        
+##########################################################################################
+#                        Functions that will generate MIP and 2MIP                       #
+##########################################################################################
+
     
 
-    def generate_MIP_cluster(self):
+    def generate_MIP_cluster(self,G):
+        self.G=G
+        
+        self.P=[]                   
+        self.P.append(self.G)
 
-        return self.ct_noise(self.segmentation(self.r,self.t,self.w)[3])
+        clus = self.charge(self.r,self.t,self.w,self.G)[2]
+
+        return self.ADC(clus)
     
-    def generate_2MIP_cluster(self):
+    def generate_2MIP_cluster(self,G):
 
-        clus1 = self.segmentation(self.r,self.t,self.w)[3]
-        clus2 = self.segmentation(self.r,self.t,self.w)[3]
+        self.G=G
 
-        clus3=[0]*len(clus1)
-        for i in range(len(clus1)):
-            clus3[i]=clus1[i]+clus2[i]       #add up clus before cross talk and noise
+        self.L=[]
+        self.L.append(self.G*2) #*2 since its the sum of 2 MIP
 
-        return self.ct_noise(clus3)
+        clus1 = self.charge(self.r,self.t,self.w,self.G)[2]
+        clus2 = self.charge(self.r,self.t,self.w,self.G)[2]
+
+        clus3=[clus1[i]+clus2[i] for i in range(len(clus1))]
+
+
+        return self.ADC(clus3)
 
     
     def set_config_file(self, config_file):

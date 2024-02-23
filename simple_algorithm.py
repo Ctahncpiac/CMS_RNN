@@ -13,9 +13,10 @@ class SimpleAlgo:
         simulator=ClusterSimulator("config1.json")
         self.name=name
         self.ngen=ngen
+        self.b=simulator.b
         self.r=simulator.r
         #Input file to use
-        self.inputFileName = self.name +'.root'
+        self.inputFileName = 'data_root/'+self.name +'.root'
         fileDoesNotExist = ROOT.gSystem.AccessPathName(self.inputFileName)
         
         #Checking if it does exist
@@ -34,7 +35,7 @@ class SimpleAlgo:
         tsng = f.Get("tsgn")
         tbkg = f.Get("tbkg")
         
-        clusSize = self.r #to be link to data_simulation
+        clusSize = self.r
         
         xsng = array('f',[0]*clusSize)
         xbkg = array('f',[0]*clusSize)
@@ -155,7 +156,7 @@ class SimpleAlgo:
                 s_sng.append(sum(j for j in s_mclus if j > 0))
                 s_bkg.append(sum(j for j in b_mclus if j > 0))
 
-            self.bins=150
+            self.bins=70
             self.vmin=0
             self.vmax=max( max([sum(self.tsng_list[i]) for i in range(len(self.tsng_list))]), max([sum(self.tbkg_list[i]) for i in range(len(self.tbkg_list))])) #autoscale
 
@@ -166,7 +167,7 @@ class SimpleAlgo:
                 s_sng.append(sum(self.tsng_list[i]))
                 s_bkg.append(sum(self.tbkg_list[i]))
 
-            self.bins=150
+            self.bins=70
             self.vmin=0
             self.vmax=max( max([sum(self.tsng_list[i]) for i in range(len(self.tsng_list))]), max([sum(self.tbkg_list[i]) for i in range(len(self.tbkg_list))])) #autoscale
             
@@ -207,9 +208,9 @@ class SimpleAlgo:
         
         elif self.type == "ratio":
 
-            self.bins=100
+            self.bins=50
             self.vmin=0
-            self.vmax=1000
+            self.vmax=250
 
             for i in range(self.ngen):
                
