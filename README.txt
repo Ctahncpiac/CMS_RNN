@@ -12,7 +12,7 @@ Recurrent Neural Network for CMS
 ###        ARCHITECTURE        ###
 ##################################
 
-config.json
+config1.json
 |
 |_ data_simulation.py
         |
