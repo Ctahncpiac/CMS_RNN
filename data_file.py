@@ -20,13 +20,13 @@ class file:
         xsng = array('f',[0]*clusSize)
         xbkg = array('f',[0]*clusSize)
        
+        tbkg.Branch("clus", xbkg, "xbkg[{0}]/F".format(clusSize))
+        tsgn.Branch("clus", xsng, "xbkg[{0}]/F".format(clusSize))    
+        
         #for i in range(clusSize):
         #    tbkg.Branch("clus_" + str(i), xbkg[i], "clus_" + str(i) + "/F")
         #    tsgn.Branch("clus_" + str(i), xsng[i], "clus_" + str(i) + "/F")
-       
-        tbkg.Branch("clus", xbkg, "xbkg[10]/F")
-        tsgn.Branch("clus", xsng, "xsng[10]/F")    
-        
+               
 
         for i in range(ngen):
             onemip = simulator.generate_MIP_cluster()

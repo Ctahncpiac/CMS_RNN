@@ -18,6 +18,7 @@ class ClusterSimulator:
     def load_config(self, config_file):
         with open(config_file) as f:
             config = json.load(f)
+        self.b = config["b"]
         self.r = config["r"]
         self.t = config["t"]
         self.w = config["w"]
@@ -102,20 +103,19 @@ class ClusterSimulator:
             S[int(x_i)]=d     #case where x_i and x_f are in the same column
 
        
-        K = 5  # Appliquer le facteur de gain initial
+        d_max=np.sqrt((self.w/self.r)**2+self.t**2)
 
-        if theta !=0 :
+        if theta !=0 : 
 
-            C = [ K * (i*self.w)/(self.r * np.sin(abs(theta))) for i in S]
+            C = [ (self.b*((i*self.w)/(self.r * np.sin(abs(theta)))))/d_max for i in S]
         else: 
 
             C=[0]*self.r
-            C[int(x_i)]=self.t*K 
+            C[int(x_i)]=self.b*(self.t/d_max) 
 
 
         return [X,Y,S,C]
-
-
+#saturation / seuil à max / digitisation en y 
 ##########################################################################################
 #                        Functions that will generate MIP and 2MIP                       #
 ##########################################################################################
@@ -125,15 +125,18 @@ class ClusterSimulator:
         self.clus_ct = clus_ct  # Ajustez le facteur selon le besoin
        
         #Add cross-talk effect        
-        tx0=0.1  #coeff  neighbourg
+        tx0 = 0.1  #coeff  neighbourg
         tx1 = 0.8 #self coeff
 
-        clus_ct = [0] * len(self.clus_ct)
-        clus_ct[0]=self.clus_ct[0]*tx1+self.clus_ct[1]*tx0
-        clus_ct[-1]=self.clus_ct[-1]*tx1+self.clus_ct[-2]*tx0
+        if self.r !=1:
+            clus_ct = [0] * len(self.clus_ct)
+            clus_ct[0]=self.clus_ct[0]*tx1+self.clus_ct[1]*tx0
+            clus_ct[-1]=self.clus_ct[-1]*tx1+self.clus_ct[-2]*tx0
+        
 
-        for i in range(1,len(self.clus_ct)-1):
-            clus_ct[i]=self.clus_ct[i]*tx1+self.clus_ct[i-1]*tx0+self.clus_ct[i+1]*tx0
+            for i in range(1,len(self.clus_ct)-1):
+                clus_ct[i]=self.clus_ct[i]*tx1+self.clus_ct[i-1]*tx0+self.clus_ct[i+1]*tx0
+        
         # Add noise
     
         for i in range(len(clus_ct)):
