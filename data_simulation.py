@@ -68,45 +68,45 @@ class ClusterSimulator:
         Y=[y_i,y_f]
 
         #rescale coordinates 
-        x_i= x_i*(self.r/self.w)
-        x_f= x_f*(self.r/self.w) 
+        x_i_r= x_i*(self.r/self.w)
+        x_f_r= x_f*(self.r/self.w) 
 
         #Attribution segment 
         S=[0]*self.r
-        d=abs(x_f-x_i)
+        d=abs(x_f_r-x_i_r)
 
-        if x_f == self.r:  #to ensure the case where x_f=D and int(x_i)=D-1 which will lead to d_int=1
-            x_f = self.r -1 
+        if x_f_r == self.r:  #to ensure the case where x_f=w and int(x_i)=w-1 which will lead to d_int=1
+            x_f_r= self.r -1 
 
-        d_int= int(x_f)-int(x_i)
+        d_int= int(x_f_r)-int(x_i_r)
 
         if d_int > 0: #theta > 0
 
-            S[int(x_i)]=int(x_i+1)-x_i 
-            d=d-S[int(x_i)]
+            S[int(x_i_r)]=int(x_i_r+1)-x_i_r
+            d=d-S[int(x_i_r)]
 
             j=1    
             while d>1:
-                S[int(x_i)+j]=1.0
+                S[int(x_i_r)+j]=1.0
                 d-=1
                 j+=1
 
-            S[int(x_f)]=d    
+            S[int(x_f_r)]=d    
               
         elif d_int < 0:  #theta < 0
 
-            S[int(x_i)]= x_i - int(x_i)
-            d=d-S[int(x_i)]
+            S[int(x_i_r)]= x_i_r - int(x_i_r)
+            d=d-S[int(x_i_r)]
 
             j=1
             while d>1:
-                S[int(x_i)-j]=1.0
+                S[int(x_i_r)-j]=1.0
                 d-=1
                 j+=1
 
-            S[int(x_f)]=d 
+            S[int(x_f_r)]=d 
         else :
-            S[int(x_i)]=d     #case where x_i and x_f are in the same column
+            S[int(x_i_r)]=d     #case where x_i and x_f are in the same column
 
    
         Q=30  #gain for the charge
@@ -117,7 +117,7 @@ class ClusterSimulator:
         else: 
 
             C=[0]*self.r
-            C[int(x_i)]=self.t*self.G
+            C[int(x_i_r)]=self.t*self.G
 
 
         return [X,Y,C]
