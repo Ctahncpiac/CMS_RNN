@@ -1,7 +1,7 @@
 {
-  "b": 255,  # digitalization
-  "r": 10,   # signal cutting
-  "t": 200,  # thickness  
-  "w": 100,  # width
-  "noise":10 # noise
+  "b": 255, 
+  "r": 10,   
+  "t": 200,    
+  "w": 100,  
+  "noise":10 
 }
