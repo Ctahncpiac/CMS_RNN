@@ -23,7 +23,7 @@ class ClusterSimulator:
     def load_config(self, config_file):
         with open(config_file) as f:
             config = json.load(f)
-        self.b = config["b"]
+        self.b = config["b"]        # digitalization
         self.r = config["r"]
         self.t = config["t"]
         self.w = config["w"]
