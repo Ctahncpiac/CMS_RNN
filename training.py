@@ -4,22 +4,22 @@ from ROOT import TMVA, TFile
 
 
 class train:
-        def execute(self, use_type, batchSize, maxepochs, nEvts, pB, pS, name ,method):
+        def execute(self, use_type, batchSize, maxepochs, ngen, name ,method):
                 
                 self.newname=name
                 self.use_type=use_type
                 self.batchSize=batchSize
                 self.maxepochs=maxepochs
-                self.nEvts=nEvts
-                self.pB=pB
-                self.pS=pS
+                self.ngen=ngen
+                pB=0.8
+                pS=0.8
                 self.method=method
 
-                C=Classification(self.newname,10000)
+                C=Classification(self.newname,self.ngen)
                 if self.method==1:
-                        factory=C.tmva(self.use_type, self.batchSize, self.maxepochs, self.nEvts, self.pB, self.pS)
+                        factory=C.tmva(self.use_type, self.batchSize, self.maxepochs, pB, pS)
                 else:
-                        factory=C.PyMVA(self.use_type, self.batchSize, self.maxepochs, self.nEvts, self.pB, self.pS)
+                        factory=C.PyMVA(self.use_type, self.batchSize, self.maxepochs, pB, pS)
 
                 ## Train all methods
                 factory[0].TrainAllMethods()

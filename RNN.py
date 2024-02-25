@@ -11,6 +11,7 @@ from data_file import file
 class Classification:
     
     def __init__(self, name , ngen, writeOutputFile=True):
+        
         self.simulator=ClusterSimulator("config1.json")
         self.name=name
         self.ngen=ngen
@@ -32,19 +33,18 @@ class Classification:
 
         print("--- RNNClassification  : Using input file: {}".format(self.inputFile.GetName()))
 
-        self.outfileName = "data_RNN_" + self.name + ".root"
+        self.outfileName = "data_root/data_RNN_" + self.name + ".root"
         self.outputFile = None
 
         if writeOutputFile:
             self.outputFile = TFile.Open(self.outfileName, "RECREATE") 
     
     #RNN , LSTM, GRU    
-    def tmva(self, use_type , batchSize, maxepochs, nEvts, pB, pS): #Default values
+    def tmva(self, use_type , batchSize, maxepochs, pB, pS): #Default values
         
         self.use_type=use_type
         self.batchSize=batchSize
         self.maxepochs=maxepochs
-        self.nEvts=nEvts
         self.pB=pB
         self.pS=pS        
 
@@ -77,8 +77,8 @@ class Classification:
 
         dataloader.AddVariablesArray("clus", ninputs)
 
-        nTrainSig = self.pS * self.nEvts 
-        nTrainBkg = self.pB * self.nEvts 
+        nTrainSig = self.pS * self.ngen
+        nTrainBkg = self.pB * self.ngen
 
        # Apply additional cuts on the signal and background samples (can be different)
         mycuts = ""  # for example: TCut mycuts = "abs(var1)<0.5 && abs(var2-0.5)<1";
@@ -142,7 +142,7 @@ class Classification:
         return [factory,dataloader,self.outputFile]
                 
     #Keras
-    def PyMVA(self, use_type=3 , batchSize=100, maxepochs=10, nEvts=1000, pB=0.8, pS=0.8): #Default values
+    def PyMVA(self, use_type=3 , batchSize=100, maxepochs=10, pB=0.8, pS=0.8): #Default values
 
         rnn_types = ["RNN", "LSTM", "GRU"]  #use_type = 0;1;2 (3=all)
         use_rnn_type = [1, 1, 1]
@@ -173,8 +173,8 @@ class Classification:
 
         dataloader.AddVariablesArray("clus", ninputs)
 
-        nTrainSig = pS * self.nEvts 
-        nTrainBkg = pB * self.nEvts 
+        nTrainSig = pS * self.ngen
+        nTrainBkg = pB * self.ngen
 
        # Apply additional cuts on the signal and background samples (can be different)
         mycuts = ""  # for example: TCut mycuts = "abs(var1)<0.5 && abs(var2-0.5)<1";

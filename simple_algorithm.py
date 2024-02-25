@@ -9,45 +9,39 @@ from ROOT import TFile, TTree
 class SimpleAlgo:
    
     def __init__(self ,name ,ngen ):
-        # Initialize the cluster simulator with specified configuration.
+        
         simulator=ClusterSimulator("config1.json")
         self.name=name
         self.ngen=ngen
-        self.b=simulator.b  # Store cluster boundary value
-        self.r=simulator.r  # Store cluster range value
-        
-        # Set up the input file path and check for its existence.
+        self.b=simulator.b
+        self.r=simulator.r
+        #Input file to use
         self.inputFileName = 'data_root/'+self.name +'.root'
         fileDoesNotExist = ROOT.gSystem.AccessPathName(self.inputFileName)
         
-        # If the file does not exist, create it using the provided data_file method.
+        #Checking if it does exist
         if fileDoesNotExist:
             file.cfile(self.name,self.ngen)
 
-       # Open the ROOT file and throw an error if it cannot be opened.
         self.inputFile = TFile.Open(self.inputFileName)
         if self.inputFile is None:
             raise ROOT.Error("Error opening input file %s - exit", self.inputFileName.Data())
-
-       # Initialize lists to store signal and background data.
+        
         self.tsng_list=[]
         self.tbkg_list=[]
 
-       # Extract trees from the file.
         f = TFile.Open(self.inputFileName)
+
         tsng = f.Get("tsgn")
         tbkg = f.Get("tbkg")
-
-       # Set up arrays to read tree branches.
+        
         clusSize = self.r
+        
         xsng = array('f',[0]*clusSize)
         xbkg = array('f',[0]*clusSize)
-       
-        # Connect tree branches to arrays.
+        
         tsng.SetBranchAddress("clus",xsng)
         tbkg.SetBranchAddress("clus",xbkg)
-
-       # Read entries from the trees and append to signal and background lists.
         for i in range(self.ngen):
             tsng.GetEntry(i)
             tbkg.GetEntry(i)
@@ -56,20 +50,17 @@ class SimpleAlgo:
         f.Close()  
 
     def is_signal(self,type, cluster, threshold):
-      # Determine if a cluster is considered a signal based on the specified criteria.
+
         self.type=type
         self.threshold=threshold
         self.cluster=cluster
         
-        # Different methods to classify a cluster as signal based on type.
+        # Check if the cluster is a signal based on hypothesis with a given threshold
         if self.type == "integral" :
-        # Integral method: checks if the charge integrated over adjacent cells exceeds threshold.
-
-           # Find the maximum charge and its position.
+            
             q_max=max(self.cluster)
             p_max=self.cluster.index(q_max) #position of the highest charge
 
-           # Determine the next highest charge adjacent to the maximum.
             if p_max == 0:
                 nq_max = self.cluster[p_max+1]
             elif p_max == len(self.cluster)-1:
@@ -77,58 +68,51 @@ class SimpleAlgo:
             else:
                 nq_max = max([self.cluster[p_max-1],self.cluster[p_max+1]])
 
-           # Subtract the maximum charge from all elements and add the next highest charge.
             mclus=self.cluster.copy()
             mclus=[x - q_max + nq_max for x in mclus] 
 
-           # Check if the adjusted sum is below the threshold.
             if sum(i for i in mclus if i > 0) <= self.threshold:
                 return True
             else:
                 return False
             
         elif self.type == "charge" : 
-            # Charge method: checks if the total charge is below a threshold.
+                
             if sum(self.cluster) <= self.threshold:
                 return True
             else:
                 return False
             
         elif self.type == "width" :
-            # Width method: checks if the cluster width is below a threshold.
-
-           # Find first and last non-zero values.
+            
             fv=self.cluster.index(next(filter(lambda x: x!= 0, self.cluster),0))  #first non-zero value 
+
             lv= len(self.cluster)-self.cluster[::-1].index(next(filter(lambda x: x!= 0, self.cluster[::-1]),0)) #last non-zero value
 
-           # Check if width is below the threshold.
             if len(self.cluster[fv:lv]) <= self.threshold:   #distance between the first non-zero value and the last non-zero value
                 return True
             else:
                 return False
-               
         elif self.type == "position" :
-             # Position method: checks if the positions of the two highest charges are within a certain range.
+             
              mclus=self.cluster.copy()
              mclus.sort()
              if abs(self.cluster.index(mclus[-1])-self.cluster.index(mclus[-2]))<=self.threshold:
                 return True
              else:
                  return False
-                
         elif self.type == "ratio":
-            # Ratio method: checks if the average charge over the width is below a threshold.
+            
             fv=self.cluster.index(next(filter(lambda x: x!= 0, self.cluster),0))
+
             lv= len(self.cluster)-self.cluster[::-1].index(next(filter(lambda x: x!= 0, self.cluster[::-1]),0))
 
             if sum(self.cluster)/len(self.cluster[fv:lv]) <= self.threshold:
                 return True
             else:
                 return False
-               
     def hyp_t(self,type): #Hypothesis test
-      # Perform a hypothesis test based on the specified type. 
-       
+
         bins,vmin,vmax=0,0,0  #variables used for histogram in results.py
 
         self.bins=bins
@@ -172,7 +156,7 @@ class SimpleAlgo:
                 s_sng.append(sum(j for j in s_mclus if j > 0))
                 s_bkg.append(sum(j for j in b_mclus if j > 0))
 
-            self.bins=70
+            self.bins=50
             self.vmin=0
             self.vmax=max( max([sum(self.tsng_list[i]) for i in range(len(self.tsng_list))]), max([sum(self.tbkg_list[i]) for i in range(len(self.tbkg_list))])) #autoscale
 
@@ -183,15 +167,15 @@ class SimpleAlgo:
                 s_sng.append(sum(self.tsng_list[i]))
                 s_bkg.append(sum(self.tbkg_list[i]))
 
-            self.bins=70
+            self.bins=50
             self.vmin=0
             self.vmax=max( max([sum(self.tsng_list[i]) for i in range(len(self.tsng_list))]), max([sum(self.tbkg_list[i]) for i in range(len(self.tbkg_list))])) #autoscale
             
         elif self.type=="width":
             
-            self.bins=len(self.tsng_list[0])
+            self.bins=self.r
             self.vmin=0
-            self.vmax=len(self.tsng_list[0])
+            self.vmax=self.r
 
             for i in range(self.ngen):
                 
@@ -207,9 +191,9 @@ class SimpleAlgo:
         
         elif self.type == "position":
             
-            self.bins=len(self.tsng_list[0])
+            self.bins=self.r
             self.vmin=0
-            self.vmax=len(self.tsng_list[0]) 
+            self.vmax=self.r
 
             for i in range(self.ngen):
 
@@ -224,9 +208,9 @@ class SimpleAlgo:
         
         elif self.type == "ratio":
 
-            self.bins=50
+            self.bins=25
             self.vmin=0
-            self.vmax=250
+            self.vmax=self.b
 
             for i in range(self.ngen):
                
@@ -242,11 +226,19 @@ class SimpleAlgo:
 
         return s_sng, s_bkg 
     
-    def evaluate_performance(self, type ,threshold):
-        # Evaluate the performance of the classification method.
-       
+    def evaluate_performance(self, type):
+        
         self.type=type
-        self.threshold=threshold
+        if type == "integral":
+            self.threshold=self.b*self.r
+        elif type == "width" :
+            self.threshold=self.r
+        elif type== "charge" :
+            self.threshold = self.b*self.r
+        elif type == "ratio" :
+            self.threshold = self.b
+        elif type=="position" :
+            self.threshold = self.r
         
         sng_e, bkg_r = [],[]
   
