@@ -36,7 +36,14 @@ class ClusterSimulator:
     
     def distr_theta(self):
 
-        x = rand.Gaus(np.pi/15,0.12)*random.choice([-1, 1])
+        x = rand.Gaus(np.pi/9,0.25)*random.choice([-1, 1])
+
+        #threshold protection in case x=+-pi/2
+        if x>np.pi/2.1:
+            x=np.pi/2.1
+        elif x<-np.pi/2.1:
+            x=-np.pi/2.1
+            
         return x
     
     def charge(self, r, t ,w,G):
