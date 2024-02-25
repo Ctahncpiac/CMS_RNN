@@ -23,11 +23,11 @@ class ClusterSimulator:
     def load_config(self, config_file):
         with open(config_file) as f:
             config = json.load(f)
-        self.b = config["b"]        # digitalization
-        self.r = config["r"]
-        self.t = config["t"]
-        self.w = config["w"]
-        self.noise = config["noise"] 
+        self.b = config["b"]          # digitalization
+        self.r = config["r"]          # signal cutting
+        self.t = config["t"]          # thickness
+        self.w = config["w"]          # width
+        self.noise = config["noise"]  # noise 
         
         
     def generate_position(self,w):
