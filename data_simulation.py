@@ -32,7 +32,7 @@ class ClusterSimulator:
         
     def generate_position(self,w):
         self.w=w
-        return random.uniform(0,self.w)  #retoune un réel compris entre 0 et r (de manière uniforme)
+        return random.uniform(0,self.w)  #returns a real number between 0 and r (uniformly)
     
     def distr_theta(self):
 
