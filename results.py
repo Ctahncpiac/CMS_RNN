@@ -25,7 +25,7 @@ def comparison(name,type,ngen,epoch,batch): #type = integrer
    #Simple Algo plot
     algo = SimpleAlgo(name,ngen)
 
-    sng_e, bkg_r = algo.evaluate_performance("width")
+    sng_e, bkg_r = algo.evaluate_performance("width") #change width to whatever hypothesis test variables you want
     
     sum=0
     for i in range(len(sng_e)-1):
@@ -69,7 +69,7 @@ def comparison(name,type,ngen,epoch,batch): #type = integrer
     roc_curve.Update()
     roc_curve.Print('prints/ROC_data_'+name+'.png')
 
-def hist_hyp(name,type,ngen): #type = "integral" ; "charge" ; "width" ; "position"
+def hist_hyp(name,type,ngen): #type = "integral" ; "charge" ; "width" ; "position"; "ratio"
 
         hyp = SimpleAlgo(name, ngen) #name , ngen
         s_sng, s_bkg = hyp.hyp_t(type)
@@ -107,7 +107,11 @@ def hist_hyp(name,type,ngen): #type = "integral" ; "charge" ; "width" ; "positio
 
 name="TEST"
 ngen=1000
-hist_hyp(name,type,ngen)
+T=["integral" , "charge" , "width" , "position", "ratio"]
+
+for i in T
+    hist_hyp(name,i,ngen)
+    
 comparison(name,3,ngen,50,100)
 
 """
