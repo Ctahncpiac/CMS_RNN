@@ -18,11 +18,11 @@ config1.json
         |
         |_data_file.py 
         |         |
-        |         |_simple_algorithm.py  ___________________________
-        |         |                                                |
-        |         |_RNN.py                                         |_results.py       
-        |             |                                            |    
-        |             |_training.py _______________________________|
+        |         |_simple_algorithm.py  ________________
+        |         |                                      |         
+        |         |_RNN.py                               |_results.py               
+        |             |                                  |             
+        |             |_training.py _____________________|
         |
         |_draw.py  
 
