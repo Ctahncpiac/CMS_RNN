@@ -109,7 +109,7 @@ name="TEST"
 ngen=1000
 T=["integral" , "charge" , "width" , "position", "ratio"]
 
-for i in T :
+for i in T:
     hist_hyp(name,i,ngen)
     
 comparison(name,3,ngen,50,100)
